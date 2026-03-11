@@ -16,6 +16,7 @@ import java.io.Serializable;
  * - unique = true -> this value must be unqiue across the database -> composes
  * the primary key
  */
+
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
