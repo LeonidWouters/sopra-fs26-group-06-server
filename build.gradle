@@ -58,6 +58,7 @@ sonar {
     properties {
         property "sonar.projectKey", "LeonidWouters_sopra-fs26-group-06-server"
         property "sonar.organization", "leonid-wouters"
+        property "sonar.projectName", "sopra-fs26-group-06-server"
     }
 }
 
