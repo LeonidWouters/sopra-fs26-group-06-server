@@ -4,7 +4,7 @@ plugins {
     id 'java'
     id 'idea'
     id 'jacoco'
-    id "org.sonarqube" version "7.2.1.6560"
+    id "org.sonarqube" version "7.2.3.7755"
 }
 
 group = 'ch.uzh.ifi.hasel'
@@ -58,7 +58,6 @@ sonar {
     properties {
         property "sonar.projectKey", "LeonidWouters_sopra-fs26-group-06-server"
         property "sonar.organization", "leonid-wouters"
-        property "sonar.host.url", "https://sonarcloud.io"
     }
 }
 
