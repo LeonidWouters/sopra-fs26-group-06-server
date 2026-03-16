@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public class UserGetDTO {
 	private UserStatus status;
 	private String bio;
 	private  LocalDateTime creationDate;
+	private DisabilityStatus disabilityStatus;
 
 	public Long getId() {
 		return id;
@@ -42,6 +44,9 @@ public class UserGetDTO {
 
 	public LocalDateTime getCreationDate() {return creationDate;}
 
-
 	public void setCreationDate(LocalDateTime creationDate) {this.creationDate = creationDate;}
+
+	public DisabilityStatus getDisabilityStatus() {return disabilityStatus;}
+
+	public void setDisabilityStatus(DisabilityStatus disabilityStatus) {this.disabilityStatus = disabilityStatus;}
 }
