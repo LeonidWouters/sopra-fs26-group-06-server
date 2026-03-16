@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.entity;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import jakarta.persistence.*;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
@@ -44,6 +45,8 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private String bio;
 
+	@Column(nullable = false)
+	private DisabilityStatus disabilityStatus;
 
 	@Column(nullable = false)
 	private LocalDateTime creationDate;
@@ -97,4 +100,7 @@ public class User implements Serializable {
 
 	public LocalDateTime getCreationDate() {return creationDate;}
 	public void setCreationDate(LocalDateTime creationDate) {this.creationDate = creationDate;}
+
+	public DisabilityStatus getDisabilityStatus() {return disabilityStatus;}
+	public void setDisabilityStatus(DisabilityStatus disabilityStatus) {this.disabilityStatus = disabilityStatus;}
 }

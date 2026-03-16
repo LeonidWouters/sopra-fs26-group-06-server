@@ -10,6 +10,8 @@ public class UserPostDTO {
 
 	private String status;
 
+	private String disabilityStatus;
+
 
 	public String getPassword() {
 		return password;
@@ -38,4 +40,8 @@ public class UserPostDTO {
 	public void setStatus(String status) {
 		this.status = status;
 	}
+	public String getDisabilityStatus() {
+		return disabilityStatus;
+	}
+	public void setDisabilityStatus(String disabilityStatus) {this.disabilityStatus = disabilityStatus;}
 }
