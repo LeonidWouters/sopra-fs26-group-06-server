@@ -43,6 +43,8 @@ public class UserServiceIntegrationTest {
 		User testUser = new User();
 		testUser.setPassword("test");
 		testUser.setUsername("testUsername");
+		testUser.setFirstname("First");
+		testUser.setLastname("Last");
 		testUser.setBio("testBio");//Needed since Bio is mandatory according to specs
 
 		// when
@@ -63,6 +65,8 @@ public class UserServiceIntegrationTest {
 		User testUser = new User();
 		testUser.setPassword("test");
 		testUser.setUsername("testUsername");
+		testUser.setFirstname("First");
+		testUser.setLastname("Last");
 		testUser.setBio("testBio");
 		userService.createUser(testUser);
 
@@ -72,6 +76,8 @@ public class UserServiceIntegrationTest {
 		// change the name but forget about the username
 		testUser2.setPassword("testName2");
 		testUser2.setUsername("testUsername");
+		testUser2.setFirstname("Second");
+		testUser2.setLastname("User");
 		testUser2.setBio("testBio2");
 
 		// check that an error is thrown

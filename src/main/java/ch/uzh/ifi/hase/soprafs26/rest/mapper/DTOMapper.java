@@ -30,6 +30,8 @@ public interface DTOMapper {
 	@Mapping(target = "status", source = "status")
 	@Mapping(target = "creationDate", ignore = true)
 	@Mapping(source = "username", target = "username")
+	@Mapping(source = "firstname", target = "firstname")
+	@Mapping(source = "lastname", target = "lastname")
 	@Mapping(source = "password", target = "password")
 	@Mapping(source = "bio", target = "bio")
 	@Mapping(source = "disabilityStatus", target = "disabilityStatus")
@@ -37,6 +39,8 @@ public interface DTOMapper {
 
 	@Mapping(source = "id", target = "id")
 	@Mapping(source = "username", target = "username")
+	@Mapping(source = "firstname", target = "firstname")
+	@Mapping(source = "lastname", target = "lastname")
 	@Mapping(source = "status", target = "status")
 	@Mapping(source = "bio", target = "bio")
 	@Mapping(source = "creationDate", target = "creationDate")

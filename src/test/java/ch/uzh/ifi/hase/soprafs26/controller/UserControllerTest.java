@@ -66,6 +66,8 @@ public class UserControllerTest {
 		User user = new User();
 		user.setId(1L);
 		user.setUsername("firstname@lastname");
+		user.setFirstname("First");
+		user.setLastname("Last");
 		user.setBio("testBio");
 		user.setStatus(UserStatus.ONLINE);
 		user.setCreationDate(LocalDateTime.now().withNano(0)); //ensures consistent format for testing, 00 is truncated in json, otherwise the dates match exactly
@@ -86,6 +88,8 @@ public class UserControllerTest {
 		mockMvc.perform(getRequest).andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(1)))
 				.andExpect(jsonPath("$[0].username", is(user.getUsername())))
+				.andExpect(jsonPath("$[0].firstname", is(user.getFirstname())))
+				.andExpect(jsonPath("$[0].lastname", is(user.getLastname())))
 				.andExpect(jsonPath("$[0].bio", is(user.getBio())))
 				.andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
 				.andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
@@ -110,6 +114,8 @@ public class UserControllerTest {
 		User user = new User();
 		user.setId(1L);
 		user.setUsername("testUsername");
+		user.setFirstname("First");
+		user.setLastname("Last");
 		user.setToken("1");
 		user.setBio("testBio");
 		user.setStatus(UserStatus.ONLINE);
@@ -118,6 +124,8 @@ public class UserControllerTest {
 		UserPostDTO userPostDTO = new UserPostDTO();
 		userPostDTO.setPassword("test");
 		userPostDTO.setUsername("testUsername");
+		userPostDTO.setFirstname("First");
+		userPostDTO.setLastname("Last");
 		userPostDTO.setBio("testBio");
 
 		given(userService.createUser(Mockito.any())).willReturn(user);
@@ -145,6 +153,8 @@ public class UserControllerTest {
 		UserPostDTO userPostDTO = new UserPostDTO();
 		userPostDTO.setPassword("test");
 		userPostDTO.setUsername("testUsername");
+		userPostDTO.setFirstname("First");
+		userPostDTO.setLastname("Last");
 		userPostDTO.setBio("testBio");
 
 
@@ -165,6 +175,8 @@ public class UserControllerTest {
 		User user = new User();
 		user.setId(1L);
 		user.setUsername("testUsername");
+		user.setFirstname("First");
+		user.setLastname("Last");
 		user.setToken("1");
 		user.setPassword("testPassword");
 
