@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public class UserServiceIntegrationTest {
 		testUser.setFirstname("First");
 		testUser.setLastname("Last");
 		testUser.setBio("testBio");//Needed since Bio is mandatory according to specs
+		testUser.setDisabilityStatus(DisabilityStatus.HEARING);
 
 		// when
 		User createdUser = userService.createUser(testUser);
@@ -68,6 +70,7 @@ public class UserServiceIntegrationTest {
 		testUser.setFirstname("First");
 		testUser.setLastname("Last");
 		testUser.setBio("testBio");
+		testUser.setDisabilityStatus(DisabilityStatus.HEARING);
 		userService.createUser(testUser);
 
 		// attempt to create second user with same username
@@ -79,6 +82,7 @@ public class UserServiceIntegrationTest {
 		testUser2.setFirstname("Second");
 		testUser2.setLastname("User");
 		testUser2.setBio("testBio2");
+		testUser2.setDisabilityStatus(DisabilityStatus.DEAF);
 
 		// check that an error is thrown
 		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
