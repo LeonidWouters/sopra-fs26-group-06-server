@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User Controller
@@ -132,6 +133,7 @@ public class UserController {
 	public void logout(@RequestHeader("token") String token) {
 		User user = userRepository.findByToken(token);
 		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		user.setToken(UUID.randomUUID().toString());
 		user.setStatus(UserStatus.OFFLINE);
 		userRepository.save(user);
 	}
