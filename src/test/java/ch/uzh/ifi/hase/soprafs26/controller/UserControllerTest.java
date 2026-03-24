@@ -62,7 +62,22 @@ public class UserControllerTest {
         user.setCreationDate(LocalDateTime.now().withNano(0)); //ensures consistent format for testing, 00 is truncated in json, otherwise the dates match exactly
         user.setToken("1");
 
+<<<<<<< HEAD
         List<User> allUsers = Collections.singletonList(user);
+=======
+	@Test
+	public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+		// given
+		User user = new User();
+		user.setId(1L);
+		user.setUsername("firstname@lastname");
+		user.setFirstname("First");
+		user.setLastname("Last");
+		user.setBio("testBio");
+		user.setStatus(UserStatus.ONLINE);
+		user.setCreationDate(LocalDateTime.now().withNano(0)); //ensures consistent format for testing, 00 is truncated in json, otherwise the dates match exactly
+		user.setToken("1");
+>>>>>>> dev
 
         // this mocks the UserService -> we define above what the userService should
         // return when getUsers() is called
@@ -82,8 +97,21 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
     }
 
+<<<<<<< HEAD
     @Test
     public void noUser_whenGetUser_thenReturn404() throws Exception {
+=======
+		// then
+		mockMvc.perform(getRequest).andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(1)))
+				.andExpect(jsonPath("$[0].username", is(user.getUsername())))
+				.andExpect(jsonPath("$[0].firstname", is(user.getFirstname())))
+				.andExpect(jsonPath("$[0].lastname", is(user.getLastname())))
+				.andExpect(jsonPath("$[0].bio", is(user.getBio())))
+				.andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
+				.andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+	}
+>>>>>>> dev
 
         when(userService.getByID(2L))
                 .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User with the given ID not found"));
@@ -106,12 +134,34 @@ public class UserControllerTest {
         user.setStatus(UserStatus.ONLINE);
         user.setCreationDate(LocalDateTime.now());
 
+<<<<<<< HEAD
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setPassword("test");
         userPostDTO.setUsername("testUsername");
         userPostDTO.setBio("testBio");
 
         given(userService.createUser(Mockito.any())).willReturn(user);
+=======
+	@Test
+	public void createUser_validInput_userCreated() throws Exception {
+		// given
+		User user = new User();
+		user.setId(1L);
+		user.setUsername("testUsername");
+		user.setFirstname("First");
+		user.setLastname("Last");
+		user.setToken("1");
+		user.setBio("testBio");
+		user.setStatus(UserStatus.ONLINE);
+		user.setCreationDate(LocalDateTime.now());
+
+		UserPostDTO userPostDTO = new UserPostDTO();
+		userPostDTO.setPassword("test");
+		userPostDTO.setUsername("testUsername");
+		userPostDTO.setFirstname("First");
+		userPostDTO.setLastname("Last");
+		userPostDTO.setBio("testBio");
+>>>>>>> dev
 
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder postRequest = post("/users")
@@ -132,11 +182,21 @@ public class UserControllerTest {
     public void createUser_invalidInput_userNotCreated() throws Exception {
 
 
+<<<<<<< HEAD
         // given
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setPassword("test");
         userPostDTO.setUsername("testUsername");
         userPostDTO.setBio("testBio");
+=======
+		// given
+		UserPostDTO userPostDTO = new UserPostDTO();
+		userPostDTO.setPassword("test");
+		userPostDTO.setUsername("testUsername");
+		userPostDTO.setFirstname("First");
+		userPostDTO.setLastname("Last");
+		userPostDTO.setBio("testBio");
+>>>>>>> dev
 
 
         given(userService.createUser(Mockito.any()))
@@ -150,6 +210,7 @@ public class UserControllerTest {
         mockMvc.perform(postRequest).andExpect(status().isConflict());
     }
 
+<<<<<<< HEAD
     @Test
     public void changePassword_validInput_passwordChanged() throws Exception {
         // given
@@ -158,6 +219,18 @@ public class UserControllerTest {
         user.setUsername("testUsername");
         user.setToken("1");
         user.setPassword("testPassword");
+=======
+	@Test
+	public void changePassword_validInput_passwordChanged() throws Exception {
+		// given
+		User user = new User();
+		user.setId(1L);
+		user.setUsername("testUsername");
+		user.setFirstname("First");
+		user.setLastname("Last");
+		user.setToken("1");
+		user.setPassword("testPassword");
+>>>>>>> dev
 
         given(userRepository.findByToken("1")).willReturn(user);
 

@@ -22,23 +22,27 @@ public interface DTOMapper {
 
     DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "token", ignore = true)
-    @Mapping(target = "status", source = "status")
-    @Mapping(target = "creationDate", ignore = true)
-    @Mapping(source = "username", target = "username")
-    @Mapping(source = "password", target = "password")
-    @Mapping(source = "bio", target = "bio")
-    @Mapping(source = "disabilityStatus", target = "disabilityStatus")
-    User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "token", ignore = true)
+	@Mapping(target = "status", source = "status")
+	@Mapping(target = "creationDate", ignore = true)
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "firstname", target = "firstname")
+	@Mapping(source = "lastname", target = "lastname")
+	@Mapping(source = "password", target = "password")
+	@Mapping(source = "bio", target = "bio")
+	@Mapping(source = "disabilityStatus", target = "disabilityStatus")
+	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "username", target = "username")
-    @Mapping(source = "status", target = "status")
-    @Mapping(source = "bio", target = "bio")
-    @Mapping(source = "creationDate", target = "creationDate")
-    @Mapping(source = "disabilityStatus", target = "disabilityStatus")
-    UserGetDTO convertEntityToUserGetDTO(User user);
+	@Mapping(source = "id", target = "id")
+	@Mapping(source = "username", target = "username")
+	@Mapping(source = "firstname", target = "firstname")
+	@Mapping(source = "lastname", target = "lastname")
+	@Mapping(source = "status", target = "status")
+	@Mapping(source = "bio", target = "bio")
+	@Mapping(source = "creationDate", target = "creationDate")
+	@Mapping(source = "disabilityStatus", target = "disabilityStatus")
+	UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "token", source = "token")

@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User Controller
@@ -104,46 +105,31 @@ public class UserController {
 
     }
 
-    @PutMapping("users/{id}/password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ResponseBody
-    public UserPutPasswordDTO changePassword(@RequestBody UserPutPasswordDTO userPutPasswordDTO, @RequestHeader("token") String token) {
-        User user = userRepository.findByToken(token);
-        if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        user.setPassword(userPutPasswordDTO.getPassword());
-        userRepository.save(user);
-        return userPutPasswordDTO;
-    }
+	@PutMapping("users/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ResponseBody
+	public UserPutDTO changePassword(@RequestBody UserPutDTO userPutDTO, @RequestHeader("token") String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		user.setPassword(userPutDTO.getPassword());
+		if (userPutDTO.getFirstname() != null) {
+			user.setFirstname(userPutDTO.getFirstname());
+		}
+		if (userPutDTO.getLastname() != null) {
+			user.setLastname(userPutDTO.getLastname());
+		}
+		userRepository.save(user);
+		return userPutDTO;
+	}
 
-    @PutMapping("users/{id}/profile")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ResponseBody
-    public UserPutProfileDTO changeProfile(@RequestBody UserPutProfileDTO userPutProfileDTO, @RequestHeader("token") String token) {
-        User user = userRepository.findByToken(token);
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        }
-        if (userPutProfileDTO.getUsername() != null) {
-            user.setUsername(userPutProfileDTO.getUsername());
-        }
-        if (userPutProfileDTO.getBio() != null) {
-            user.setBio(userPutProfileDTO.getBio());
-        }
-        if (userPutProfileDTO.getDisabilityStatus() != null) {
-            user.setDisabilityStatus(userPutProfileDTO.getDisabilityStatus());
-        }
-        userRepository.save(user);
-        return userPutProfileDTO;
-    }
-
-
-    @PutMapping("users/logout")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ResponseBody
-    public void logout(@RequestHeader("token") String token) {
-        User user = userRepository.findByToken(token);
-        if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-        user.setStatus(UserStatus.OFFLINE);
-        userRepository.save(user);
-    }
+	@PutMapping("users/logout")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ResponseBody
+	public void logout(@RequestHeader("token") String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		user.setToken(UUID.randomUUID().toString());
+		user.setStatus(UserStatus.OFFLINE);
+		userRepository.save(user);
+	}
 }

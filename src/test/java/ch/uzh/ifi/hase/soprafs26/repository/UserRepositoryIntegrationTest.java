@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 
@@ -26,7 +27,10 @@ public class UserRepositoryIntegrationTest {
 		User user = new User();
 		user.setPassword("Firstname Lastname");
 		user.setUsername("firstname@lastname");
+		user.setFirstname("Firstname");
+		user.setLastname("Lastname");
 		user.setBio("testBio");
+		user.setDisabilityStatus(DisabilityStatus.HEARING);
 		user.setStatus(UserStatus.OFFLINE);
 		user.setToken("1");
 
