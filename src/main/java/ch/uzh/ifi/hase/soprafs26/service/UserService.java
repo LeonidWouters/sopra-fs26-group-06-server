@@ -51,8 +51,6 @@ public class UserService {
 		return newUser;
 	}
 
-<<<<<<< HEAD
-=======
 	public User checkUser(User loginUser) {
 		authenticate(loginUser);
 		User user = userRepository.findByUsername(loginUser.getUsername());
@@ -70,7 +68,6 @@ public class UserService {
 		return user;
 	}
 
->>>>>>> eb426c7 (New token is generated upon login)
 	/**
 	 * This is a helper method that will check the uniqueness criteria of the
 	 * username and the name
