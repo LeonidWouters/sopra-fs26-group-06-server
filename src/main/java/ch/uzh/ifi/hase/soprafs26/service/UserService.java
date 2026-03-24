@@ -51,6 +51,26 @@ public class UserService {
 		return newUser;
 	}
 
+<<<<<<< HEAD
+=======
+	public User checkUser(User loginUser) {
+		authenticate(loginUser);
+		User user = userRepository.findByUsername(loginUser.getUsername());
+		user.setToken(UUID.randomUUID().toString());
+		user.setStatus(UserStatus.ONLINE);
+		userRepository.save(user);
+		return user;
+	}
+
+	public User getByID(long id){
+		User user = userRepository.findByid(id);
+		if(user == null){throw new ResponseStatusException( HttpStatus.NOT_FOUND, "User not found");}
+
+
+		return user;
+	}
+
+>>>>>>> eb426c7 (New token is generated upon login)
 	/**
 	 * This is a helper method that will check the uniqueness criteria of the
 	 * username and the name
