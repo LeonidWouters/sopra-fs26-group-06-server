@@ -55,6 +55,7 @@ public class UserService {
 	public User checkUser(User loginUser) {
 		authenticate(loginUser);
 		User user = userRepository.findByUsername(loginUser.getUsername());
+		user.setToken(UUID.randomUUID().toString());
 		user.setStatus(UserStatus.ONLINE);
 		userRepository.save(user);
 		return user;
