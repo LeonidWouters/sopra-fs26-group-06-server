@@ -46,4 +46,28 @@ public class RoomController {
 
         return roomService.getRoomById(Long.toString(id));
     }
+    @PostMapping("/rooms/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Room joinRoom(@PathVariable Long id, @RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+
+        Room room =  roomService.getRoomById(Long.toString(id));
+        if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
+            room.setRoomStatus(RoomStatus.FULL);
+            room.setCalleeID(userToken.getId());
+        }
+        if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
+            room.setRoomStatus(RoomStatus.JOINABLE);
+            room.setCallerID(userToken.getId());
+        }
+        if(room.getRoomStatus().equals(RoomStatus.FULL)){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Room is Full");
+        }
+        return room;
+
+    }
 }
