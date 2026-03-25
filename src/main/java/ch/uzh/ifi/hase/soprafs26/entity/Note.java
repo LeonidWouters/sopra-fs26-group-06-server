@@ -8,6 +8,8 @@ import java.io.Serializable;
 
 import java.time.LocalDateTime;
 
+import java.util.UUID;
+
 /**
  * Internal Note Representation
  * This class composes the internal representation of the note and defines how
@@ -41,7 +43,16 @@ public class Note implements Serializable {
     private UUID sessionId;
 
 	@PrePersist
-	protected void onCreate() {setCreationDate(LocalDateTime.now());}
+	protected void onCreate() {
+		LocalDateTime now = LocalDateTime.now();
+		setCreatedAt(now);
+		setUpdatedAt(now);
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		setUpdatedAt(LocalDateTime.now());
+	}
 
 	public Long getId() {
 		return id;
@@ -63,7 +74,7 @@ public class Note implements Serializable {
         return createdAt;
     }
 
-    public void setCreationDate(LocalDateTime createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
