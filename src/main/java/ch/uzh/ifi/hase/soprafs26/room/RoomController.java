@@ -56,19 +56,20 @@ public class RoomController {
         }
 
         Room room =  roomService.getRoomById(Long.toString(id));
-        if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
-            room.setRoomStatus(RoomStatus.FULL);
-            room.setCalleeID(userToken.getId());
-        }
         if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
             room.setRoomStatus(RoomStatus.JOINABLE);
             room.setCallerID(userToken.getId());
+            return room;
+        }
+        if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
+            room.setRoomStatus(RoomStatus.FULL);
+            room.setCalleeID(userToken.getId());
+            return room;
         }
         if(room.getRoomStatus().equals(RoomStatus.FULL)){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room is Full");
         }
         return room;
-
     }
     @PostMapping("/rooms/{id}/leave")
     @ResponseStatus(HttpStatus.OK)
