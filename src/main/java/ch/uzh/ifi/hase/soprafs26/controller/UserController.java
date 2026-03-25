@@ -112,11 +112,8 @@ public class UserController {
 		User user = userRepository.findByToken(token);
 		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
 		user.setPassword(userPutDTO.getPassword());
-		if (userPutDTO.getFirstname() != null) {
-			user.setFirstname(userPutDTO.getFirstname());
-		}
-		if (userPutDTO.getLastname() != null) {
-			user.setLastname(userPutDTO.getLastname());
+        if (userPutDTO.getName() != null) {
+            user.setName(userPutDTO.getName());
 		}
 		userRepository.save(user);
 		return userPutDTO;

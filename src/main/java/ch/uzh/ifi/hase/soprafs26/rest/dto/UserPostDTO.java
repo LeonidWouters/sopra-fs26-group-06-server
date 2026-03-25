@@ -6,9 +6,7 @@ public class UserPostDTO {
 
 	private String username;
 
-	private String firstname;
-
-	private String lastname;
+	private String name;
 
 	private String bio;
 
@@ -37,20 +35,12 @@ public class UserPostDTO {
 
 	public void setBio(String bio) { this.bio = bio; }
 
-	public String getFirstname() {
-		return firstname;
+	public String getName() {
+		return name;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
-	}
-
-	public String getLastname() {
-		return lastname;
-	}
-
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getStatus() {

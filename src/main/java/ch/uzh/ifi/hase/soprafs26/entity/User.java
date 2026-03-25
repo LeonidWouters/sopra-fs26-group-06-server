@@ -37,10 +37,7 @@ public class User implements Serializable {
 	private String username;
 
 	@Column(nullable = false)
-	private String firstname;
-
-	@Column(nullable = false)
-	private String lastname;
+	private String name;
 
 	@Column(nullable = false, unique = true)
 	private String token;
@@ -84,20 +81,12 @@ public class User implements Serializable {
 		this.username = username;
 	}
 
-	public String getFirstname() {
-		return firstname;
+	public String getName() {
+		return name;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
-	}
-
-	public String getLastname() {
-		return lastname;
-	}
-
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getToken() {

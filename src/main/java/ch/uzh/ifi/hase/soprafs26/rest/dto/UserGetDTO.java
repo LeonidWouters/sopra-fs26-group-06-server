@@ -9,8 +9,7 @@ public class UserGetDTO {
 
 	private Long id;
 	private String username;
-	private String firstname;
-	private String lastname;
+	private String name;
 	private UserStatus status;
 	private String bio;
 	private  LocalDateTime creationDate;
@@ -32,20 +31,12 @@ public class UserGetDTO {
 		this.username = username;
 	}
 
-	public String getFirstname() {
-		return firstname;
+	public String getName() {
+		return name;
 	}
 
-	public void setFirstname(String firstname) {
-		this.firstname = firstname;
-	}
-
-	public String getLastname() {
-		return lastname;
-	}
-
-	public void setLastname(String lastname) {
-		this.lastname = lastname;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public UserStatus getStatus() {

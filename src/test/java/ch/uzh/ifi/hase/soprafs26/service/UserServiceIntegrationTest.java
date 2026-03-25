@@ -44,8 +44,7 @@ public class UserServiceIntegrationTest {
 		User testUser = new User();
 		testUser.setPassword("test");
 		testUser.setUsername("testUsername");
-		testUser.setFirstname("First");
-		testUser.setLastname("Last");
+		testUser.setName("First Last");
 		testUser.setBio("testBio");//Needed since Bio is mandatory according to specs
 		testUser.setDisabilityStatus(DisabilityStatus.HEARING);
 
@@ -67,8 +66,7 @@ public class UserServiceIntegrationTest {
 		User testUser = new User();
 		testUser.setPassword("test");
 		testUser.setUsername("testUsername");
-		testUser.setFirstname("First");
-		testUser.setLastname("Last");
+		testUser.setName("First Last");
 		testUser.setBio("testBio");
 		testUser.setDisabilityStatus(DisabilityStatus.HEARING);
 		userService.createUser(testUser);
@@ -79,8 +77,7 @@ public class UserServiceIntegrationTest {
 		// change the name but forget about the username
 		testUser2.setPassword("testName2");
 		testUser2.setUsername("testUsername");
-		testUser2.setFirstname("Second");
-		testUser2.setLastname("User");
+		testUser2.setName("Second User");
 		testUser2.setBio("testBio2");
 		testUser2.setDisabilityStatus(DisabilityStatus.DEAF);
 

@@ -27,10 +27,11 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 /**
  * UserControllerTest
@@ -50,37 +51,20 @@ public class UserControllerTest {
     @MockitoBean
     private UserRepository userRepository;
 
-
     @Test
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
         user.setId(1L);
         user.setUsername("firstname@lastname");
+        user.setName("First Last");
         user.setBio("testBio");
         user.setStatus(UserStatus.ONLINE);
-        user.setCreationDate(LocalDateTime.now().withNano(0)); //ensures consistent format for testing, 00 is truncated in json, otherwise the dates match exactly
+        user.setCreationDate(LocalDateTime.now().withNano(0));
         user.setToken("1");
 
-<<<<<<< HEAD
         List<User> allUsers = Collections.singletonList(user);
-=======
-	@Test
-	public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
-		// given
-		User user = new User();
-		user.setId(1L);
-		user.setUsername("firstname@lastname");
-		user.setFirstname("First");
-		user.setLastname("Last");
-		user.setBio("testBio");
-		user.setStatus(UserStatus.ONLINE);
-		user.setCreationDate(LocalDateTime.now().withNano(0)); //ensures consistent format for testing, 00 is truncated in json, otherwise the dates match exactly
-		user.setToken("1");
->>>>>>> dev
 
-        // this mocks the UserService -> we define above what the userService should
-        // return when getUsers() is called
         given(userService.getUsers()).willReturn(allUsers);
         given(userRepository.findByToken(Mockito.anyString())).willReturn(user);
 
@@ -92,35 +76,21 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
+                .andExpect(jsonPath("$[0].name", is(user.getName())))
                 .andExpect(jsonPath("$[0].bio", is(user.getBio())))
                 .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
                 .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
     }
 
-<<<<<<< HEAD
     @Test
     public void noUser_whenGetUser_thenReturn404() throws Exception {
-=======
-		// then
-		mockMvc.perform(getRequest).andExpect(status().isOk())
-				.andExpect(jsonPath("$", hasSize(1)))
-				.andExpect(jsonPath("$[0].username", is(user.getUsername())))
-				.andExpect(jsonPath("$[0].firstname", is(user.getFirstname())))
-				.andExpect(jsonPath("$[0].lastname", is(user.getLastname())))
-				.andExpect(jsonPath("$[0].bio", is(user.getBio())))
-				.andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
-				.andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
-	}
->>>>>>> dev
-
         when(userService.getByID(2L))
                 .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User with the given ID not found"));
 
         MockHttpServletRequestBuilder getRequest = get("/users/2").contentType(MediaType.APPLICATION_JSON)
-                .header("token", "1");//token needs to be passed since all get requests expect a token for user session verification
+                .header("token", "1");
 
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
-
     }
 
     @Test
@@ -129,39 +99,19 @@ public class UserControllerTest {
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
+        user.setName("First Last");
         user.setToken("1");
         user.setBio("testBio");
         user.setStatus(UserStatus.ONLINE);
         user.setCreationDate(LocalDateTime.now());
 
-<<<<<<< HEAD
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setPassword("test");
         userPostDTO.setUsername("testUsername");
+        userPostDTO.setName("First Last");
         userPostDTO.setBio("testBio");
 
         given(userService.createUser(Mockito.any())).willReturn(user);
-=======
-	@Test
-	public void createUser_validInput_userCreated() throws Exception {
-		// given
-		User user = new User();
-		user.setId(1L);
-		user.setUsername("testUsername");
-		user.setFirstname("First");
-		user.setLastname("Last");
-		user.setToken("1");
-		user.setBio("testBio");
-		user.setStatus(UserStatus.ONLINE);
-		user.setCreationDate(LocalDateTime.now());
-
-		UserPostDTO userPostDTO = new UserPostDTO();
-		userPostDTO.setPassword("test");
-		userPostDTO.setUsername("testUsername");
-		userPostDTO.setFirstname("First");
-		userPostDTO.setLastname("Last");
-		userPostDTO.setBio("testBio");
->>>>>>> dev
 
         // when/then -> do the request + validate the result
         MockHttpServletRequestBuilder postRequest = post("/users")
@@ -180,24 +130,12 @@ public class UserControllerTest {
 
     @Test
     public void createUser_invalidInput_userNotCreated() throws Exception {
-
-
-<<<<<<< HEAD
         // given
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setPassword("test");
         userPostDTO.setUsername("testUsername");
+        userPostDTO.setName("First Last");
         userPostDTO.setBio("testBio");
-=======
-		// given
-		UserPostDTO userPostDTO = new UserPostDTO();
-		userPostDTO.setPassword("test");
-		userPostDTO.setUsername("testUsername");
-		userPostDTO.setFirstname("First");
-		userPostDTO.setLastname("Last");
-		userPostDTO.setBio("testBio");
->>>>>>> dev
-
 
         given(userService.createUser(Mockito.any()))
                 .willThrow(new ResponseStatusException(HttpStatus.CONFLICT, "Invalid user data"));
@@ -210,30 +148,17 @@ public class UserControllerTest {
         mockMvc.perform(postRequest).andExpect(status().isConflict());
     }
 
-<<<<<<< HEAD
     @Test
     public void changePassword_validInput_passwordChanged() throws Exception {
         // given
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
+        user.setName("First Last");
         user.setToken("1");
         user.setPassword("testPassword");
-=======
-	@Test
-	public void changePassword_validInput_passwordChanged() throws Exception {
-		// given
-		User user = new User();
-		user.setId(1L);
-		user.setUsername("testUsername");
-		user.setFirstname("First");
-		user.setLastname("Last");
-		user.setToken("1");
-		user.setPassword("testPassword");
->>>>>>> dev
 
         given(userRepository.findByToken("1")).willReturn(user);
-
 
         UserPutPasswordDTO userPutDTO = new UserPutPasswordDTO();
         userPutDTO.setPassword("newTestPassword");
@@ -245,14 +170,11 @@ public class UserControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNoContent());
-
     }
 
     @Test
     public void changePassword_UserDoesNotExist() throws Exception {
-
         given(userRepository.findByToken("1")).willReturn(null);
-
 
         UserPutPasswordDTO userPutDTO = new UserPutPasswordDTO();
         userPutDTO.setPassword("newTestPassword");
@@ -266,14 +188,6 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    /**
-     * Helper Method to convert userPostDTO into a JSON string such that the input
-     * can be processed
-     * Input will look like this: {"username": "Test User", "password": "testUsername","bio": "sometext"}
-     *
-     * @param object the object to convert to JSON string
-     * @return string the JSON representation of the object
-     */
     private String asJsonString(final Object object) {
         try {
             return new ObjectMapper().writeValueAsString(object);
