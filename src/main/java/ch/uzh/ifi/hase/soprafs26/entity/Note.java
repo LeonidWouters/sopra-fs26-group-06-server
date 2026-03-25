@@ -2,8 +2,6 @@ package ch.uzh.ifi.hase.soprafs26.entity;
 
 import jakarta.persistence.*;
 
-import org.springframework.cglib.core.Local;
-
 import java.io.Serializable;
 
 import java.time.LocalDateTime;
