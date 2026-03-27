@@ -91,17 +91,17 @@ public class UserService {
 	}
 	private void authenticate(User userLogin) {
 		User findUsername = userRepository.findByUsername(userLogin.getUsername());
-		User findPassword = userRepository.findByPassword(userLogin.getPassword());
 
 		String baseErrorMessage = "The %s provided %s not correct!";
-		if (findUsername == null && findPassword == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					String.format(baseErrorMessage, "username and the Password", "are"));
-		} else if (findUsername == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
-		} else if (findPassword == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "password", "is"));
+		if  (findUsername == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+					"This User does not exist!");
 		}
+
+		if (!findUsername.getPassword().equals(userLogin.getPassword())) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong Password!");
+		}
+
 	}
 
 	public boolean token_auth(String token, long id){
