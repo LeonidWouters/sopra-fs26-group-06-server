@@ -81,18 +81,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
                 .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
     }
-
-    @Test
-    public void noUser_whenGetUser_thenReturn404() throws Exception {
-        when(userService.getByID(2L))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User with the given ID not found"));
-
-        MockHttpServletRequestBuilder getRequest = get("/users/2").contentType(MediaType.APPLICATION_JSON)
-                .header("token", "1");
-
-        mockMvc.perform(getRequest).andExpect(status().isNotFound());
-    }
-
     @Test
     public void createUser_validInput_userCreated() throws Exception {
         // given

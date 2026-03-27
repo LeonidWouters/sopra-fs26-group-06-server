@@ -43,8 +43,11 @@ public class RoomController {
         if (userToken == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
         }
-
-        return roomService.getRoomById(Long.toString(id));
+        Room room = roomService.getRoomById(Long.toString(id));
+        if(room == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
+        }
+        return room;
     }
     @PutMapping("/rooms/{id}/join")
     @ResponseStatus(HttpStatus.OK)
@@ -63,6 +66,9 @@ public class RoomController {
         }
         if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
             room.setRoomStatus(RoomStatus.FULL);
+            if(userToken.getId() == room.getCallerID()){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "User cannot be caller and callee");
+            }
             room.setCalleeID(userToken.getId());
             return room;
         }
@@ -84,10 +90,10 @@ public class RoomController {
         Room room =  roomService.getRoomById(Long.toString(id));
         if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
             room.setRoomStatus(RoomStatus.EMPTY);
-            if (room.getCallerID().equals(userToken.getId())){
+            if (userToken.getId().equals(room.getCallerID())) {
                 room.setCallerID(null);
             }
-            if (room.getCalleeID().equals(userToken.getId())){
+            if (userToken.getId().equals(room.getCalleeID())){
                 room.setCalleeID(null);
             }
             room.setBaseTranscript("");
@@ -95,10 +101,10 @@ public class RoomController {
         }
         if(room.getRoomStatus().equals(RoomStatus.FULL)){
             room.setRoomStatus(RoomStatus.JOINABLE);
-            if (room.getCallerID().equals(userToken.getId())){
+            if (userToken.getId().equals(room.getCallerID())){
                 room.setCallerID(null);
             }
-            if (room.getCalleeID().equals(userToken.getId())){
+            if (userToken.getId().equals(room.getCalleeID())){
                 room.setCalleeID(null);
             }
             room.setBaseTranscript("");
