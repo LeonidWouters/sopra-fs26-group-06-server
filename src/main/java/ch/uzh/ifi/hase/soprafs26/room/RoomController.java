@@ -46,7 +46,7 @@ public class RoomController {
 
         return roomService.getRoomById(Long.toString(id));
     }
-    @PostMapping("/rooms/{id}/join")
+    @PutMapping("/rooms/{id}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public Room joinRoom(@PathVariable Long id, @RequestHeader("token") String token) {
@@ -71,7 +71,7 @@ public class RoomController {
         }
         return room;
     }
-    @PostMapping("/rooms/{id}/leave")
+    @PutMapping("/rooms/{id}/leave")
     @ResponseStatus(HttpStatus.OK)
 
     @ResponseBody
