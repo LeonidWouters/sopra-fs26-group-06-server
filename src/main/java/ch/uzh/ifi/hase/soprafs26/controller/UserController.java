@@ -105,18 +105,26 @@ public class UserController {
 
     }
 
-	@PutMapping("users/{id}")
+	@PutMapping("users/{id}/password")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@ResponseBody
-	public UserPutDTO changePassword(@RequestBody UserPutDTO userPutDTO, @RequestHeader("token") String token) {
+	public void changePassword(@PathVariable Long id, @RequestBody UserPutPasswordDTO userPutPasswordDTO, @RequestHeader("token") String token) {
 		User user = userRepository.findByToken(token);
 		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-		user.setPassword(userPutDTO.getPassword());
-        if (userPutDTO.getName() != null) {
-            user.setName(userPutDTO.getName());
-		}
+		user.setPassword(userPutPasswordDTO.getPassword());
 		userRepository.save(user);
-		return userPutDTO;
+	}
+
+	@PutMapping("users/{id}/profile")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	@ResponseBody
+	public void updateProfile(@PathVariable Long id, @RequestBody UserPutProfileDTO userPutProfileDTO, @RequestHeader("token") String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		if (userPutProfileDTO.getUsername() != null) user.setUsername(userPutProfileDTO.getUsername());
+		if (userPutProfileDTO.getBio() != null) user.setBio(userPutProfileDTO.getBio());
+		if (userPutProfileDTO.getDisabilityStatus() != null) user.setDisabilityStatus(userPutProfileDTO.getDisabilityStatus());
+		userRepository.save(user);
 	}
 
 	@PutMapping("users/logout")
