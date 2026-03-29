@@ -111,7 +111,9 @@ public class UserController {
 	public void changePassword(@PathVariable Long id, @RequestBody UserPutPasswordDTO userPutPasswordDTO, @RequestHeader("token") String token) {
 		User user = userRepository.findByToken(token);
 		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
-		user.setPassword(userPutPasswordDTO.getPassword());
+		String newPassword = userPutPasswordDTO.getPassword();
+		if (newPassword == null || newPassword.isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must not be empty");
+		user.setPassword(newPassword);
 		userRepository.save(user);
 	}
 
