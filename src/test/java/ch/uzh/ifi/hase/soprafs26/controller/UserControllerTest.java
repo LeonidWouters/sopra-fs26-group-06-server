@@ -151,7 +151,7 @@ public class UserControllerTest {
         UserPutPasswordDTO userPutDTO = new UserPutPasswordDTO();
         userPutDTO.setPassword("newTestPassword");
 
-        MockHttpServletRequestBuilder putRequest = put("/users/1")
+        MockHttpServletRequestBuilder putRequest = put("/users/1/password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("token", "1")
                 .content(asJsonString(userPutDTO));
@@ -167,7 +167,7 @@ public class UserControllerTest {
         UserPutPasswordDTO userPutDTO = new UserPutPasswordDTO();
         userPutDTO.setPassword("newTestPassword");
 
-        MockHttpServletRequestBuilder putRequest = put("/users/1")
+        MockHttpServletRequestBuilder putRequest = put("/users/1/password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("token", "1")
                 .content(asJsonString(userPutDTO));
