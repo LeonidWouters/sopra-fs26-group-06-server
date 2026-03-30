@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,7 +41,7 @@ public class UserService {
 
 	public User createUser(User newUser) {
 		newUser.setToken(UUID.randomUUID().toString());
-		newUser.setStatus(UserStatus.OFFLINE);
+		newUser.setStatus(UserStatus.ONLINE);
 		checkIfUserExists(newUser);
 		// saves the given entity but data is only persisted in the database once
 		// flush() is called
@@ -49,6 +50,23 @@ public class UserService {
 
 		log.debug("Created Information for User: {}", newUser);
 		return newUser;
+	}
+
+	public User checkUser(User loginUser) {
+		authenticate(loginUser);
+		User user = userRepository.findByUsername(loginUser.getUsername());
+		user.setToken(UUID.randomUUID().toString());
+		user.setStatus(UserStatus.ONLINE);
+		userRepository.save(user);
+		return user;
+	}
+
+	public User getByID(long id){
+		User user = userRepository.findByid(id);
+		if(user == null){throw new ResponseStatusException( HttpStatus.NOT_FOUND, "User not found");}
+
+
+		return user;
 	}
 
 	/**
@@ -63,16 +81,42 @@ public class UserService {
 	 */
 	private void checkIfUserExists(User userToBeCreated) {
 		User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-		User userByName = userRepository.findByName(userToBeCreated.getName());
+		User userByPassword = userRepository.findByPassword(userToBeCreated.getPassword());
 
 		String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-		if (userByUsername != null && userByName != null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					String.format(baseErrorMessage, "username and the name", "are"));
-		} else if (userByUsername != null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
-		} else if (userByName != null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
+		if (userByUsername != null) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
+					String.format(baseErrorMessage, "username", "is"));
 		}
+	}
+	private void authenticate(User userLogin) {
+		User findUsername = userRepository.findByUsername(userLogin.getUsername());
+
+		String baseErrorMessage = "The %s provided %s not correct!";
+		if  (findUsername == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+					"This User does not exist!");
+		}
+
+		if (!findUsername.getPassword().equals(userLogin.getPassword())) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong Password!");
+		}
+
+	}
+
+	public boolean token_auth(String token, long id){
+		String userToken = token;
+		String databaseToken = userRepository.findByid(id).getToken();
+
+		String baseError = "invalid token";
+
+
+		if(userToken == null){
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"token is null");
+		}
+		else if (!userToken.equals(databaseToken)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,baseError);
+		}
+		return true;
 	}
 }

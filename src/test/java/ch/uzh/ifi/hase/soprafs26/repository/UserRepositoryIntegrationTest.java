@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 
@@ -24,8 +25,11 @@ public class UserRepositoryIntegrationTest {
 	public void findByName_success() {
 		// given
 		User user = new User();
-		user.setName("Firstname Lastname");
+		user.setPassword("Firstname Lastname");
 		user.setUsername("firstname@lastname");
+		user.setName("Firstname Lastname");
+		user.setBio("testBio");
+		user.setDisabilityStatus(DisabilityStatus.HEARING);
 		user.setStatus(UserStatus.OFFLINE);
 		user.setToken("1");
 
@@ -33,11 +37,11 @@ public class UserRepositoryIntegrationTest {
 		entityManager.flush();
 
 		// when
-		User found = userRepository.findByName(user.getName());
+		User found = userRepository.findByUsername(user.getUsername());
 
 		// then
 		assertNotNull(found.getId());
-		assertEquals(found.getName(), user.getName());
+		assertEquals(found.getPassword(), user.getPassword());
 		assertEquals(found.getUsername(), user.getUsername());
 		assertEquals(found.getToken(), user.getToken());
 		assertEquals(found.getStatus(), user.getStatus());

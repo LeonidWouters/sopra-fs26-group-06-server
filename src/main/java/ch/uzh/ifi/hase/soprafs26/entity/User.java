@@ -1,10 +1,14 @@
 package ch.uzh.ifi.hase.soprafs26.entity;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import jakarta.persistence.*;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
+import org.springframework.cglib.core.Local;
 
 import java.io.Serializable;
+
+import java.time.LocalDateTime;
 
 /**
  * Internal User Representation
@@ -16,7 +20,6 @@ import java.io.Serializable;
  * - unique = true -> this value must be unqiue across the database -> composes
  * the primary key
  */
-
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
@@ -28,16 +31,31 @@ public class User implements Serializable {
 	private Long id;
 
 	@Column(nullable = false)
-	private String name;
+	private String password;
 
 	@Column(nullable = false, unique = true)
 	private String username;
+
+	@Column(nullable = false)
+	private String name;
 
 	@Column(nullable = false, unique = true)
 	private String token;
 
 	@Column(nullable = false)
 	private UserStatus status;
+
+	@Column(nullable = false)
+	private String bio;
+
+	@Column(nullable = false)
+	private DisabilityStatus disabilityStatus;
+
+	@Column(nullable = false)
+	private LocalDateTime creationDate;
+
+	@PrePersist
+	protected void onCreate() {setCreationDate(LocalDateTime.now());}
 
 	public Long getId() {
 		return id;
@@ -47,12 +65,12 @@ public class User implements Serializable {
 		this.id = id;
 	}
 
-	public String getName() {
-		return name;
+	public String getPassword() {
+		return password;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getUsername() {
@@ -61,6 +79,14 @@ public class User implements Serializable {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getToken() {
@@ -78,4 +104,14 @@ public class User implements Serializable {
 	public void setStatus(UserStatus status) {
 		this.status = status;
 	}
+
+	public void setBio(String bio) {this.bio = bio;}
+
+	public String getBio() {return bio;}
+
+	public LocalDateTime getCreationDate() {return creationDate;}
+	public void setCreationDate(LocalDateTime creationDate) {this.creationDate = creationDate;}
+
+	public DisabilityStatus getDisabilityStatus() {return disabilityStatus;}
+	public void setDisabilityStatus(DisabilityStatus disabilityStatus) {this.disabilityStatus = disabilityStatus;}
 }

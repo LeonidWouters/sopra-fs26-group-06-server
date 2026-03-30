@@ -1,11 +1,12 @@
 package ch.uzh.ifi.hase.soprafs26.rest.mapper;
 
-import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
-
+import ch.uzh.ifi.hase.soprafs26.entity.Note;
+import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
-import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 
 /**
  * DTOMapper
@@ -21,15 +22,80 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 @Mapper
 public interface DTOMapper {
 
-	DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
+    DTOMapper INSTANCE = Mappers.getMapper(DTOMapper.class);
 
-	@Mapping(source = "name", target = "name")
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "token", ignore = true)
+	@Mapping(target = "status", source = "status")
+	@Mapping(target = "creationDate", ignore = true)
 	@Mapping(source = "username", target = "username")
+    @Mapping(source = "name", target = "name")
+	@Mapping(source = "password", target = "password")
+	@Mapping(source = "bio", target = "bio")
+	@Mapping(source = "disabilityStatus", target = "disabilityStatus")
 	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
 	@Mapping(source = "id", target = "id")
-	@Mapping(source = "name", target = "name")
 	@Mapping(source = "username", target = "username")
+    @Mapping(source = "name", target = "name")
 	@Mapping(source = "status", target = "status")
+	@Mapping(source = "bio", target = "bio")
+	@Mapping(source = "creationDate", target = "creationDate")
+	@Mapping(source = "disabilityStatus", target = "disabilityStatus")
 	UserGetDTO convertEntityToUserGetDTO(User user);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "token", source = "token")
+    @Mapping(target = "status", source = "status")
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "password", target = "password")
+    User convertUserLoginDTOtoEntity(UserLoginDTO userLoginDTO);
+
+    @Mapping(source = "bio", target = "bio")
+    @Mapping(source = "token", target = "token")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "id", target = "id")
+    @Mapping(target = "password", ignore = true)
+    @Mapping(source = "username", target = "username")
+    UserLoginDTO converEntityToUserLoginDTO(User user);
+
+    @Mapping(source = "password", target = "password")
+    User convertUserPutPasswordDTOtoEntity(UserPutPasswordDTO userPutDTO);
+
+    @Mapping(source = "username", target = "username")
+    @Mapping(source = "bio", target = "bio")
+    @Mapping(source = "disabilityStatus", target = "disabilityStatus")
+    User convertUserProfileDTOtoEntity(UserPutProfileDTO userPutProfileDTO);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "sessionId", target = "sessionId")
+    Note convertNotePostDTOtoEntity(NotePostDTO notePostDTO);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "createdAt", target = "createdAt")
+    @Mapping(source = "updatedAt", target = "updatedAt")
+    @Mapping(source = "sessionId", target = "sessionId")
+    NoteGetDTO convertEntityToNoteGetDTO(Note note);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "sessionId", target = "sessionId")
+    Transcript convertTranscriptPostDTOtoEntity(TranscriptPostDTO transcriptPostDTO);
+
+    // Keep this ready for later if transcript updates are enabled again.
+    // @Mapping(source = "content", target = "content")
+    // Transcript convertTranscriptPutDTOtoEntity(TranscriptPutDTO transcriptPutDTO);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "createdAt", target = "createdAt")
+    @Mapping(source = "sessionId", target = "sessionId")
+    TranscriptGetDTO convertEntityToTranscriptGetDTO(Transcript transcript);
+
 }

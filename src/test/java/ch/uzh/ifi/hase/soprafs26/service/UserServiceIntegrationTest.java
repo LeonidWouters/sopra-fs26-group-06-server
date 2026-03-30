@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +42,21 @@ public class UserServiceIntegrationTest {
 		assertNull(userRepository.findByUsername("testUsername"));
 
 		User testUser = new User();
-		testUser.setName("testName");
+		testUser.setPassword("test");
 		testUser.setUsername("testUsername");
+		testUser.setName("First Last");
+		testUser.setBio("testBio");//Needed since Bio is mandatory according to specs
+		testUser.setDisabilityStatus(DisabilityStatus.HEARING);
 
 		// when
 		User createdUser = userService.createUser(testUser);
 
 		// then
 		assertEquals(testUser.getId(), createdUser.getId());
-		assertEquals(testUser.getName(), createdUser.getName());
+		assertEquals(testUser.getPassword(), createdUser.getPassword());
 		assertEquals(testUser.getUsername(), createdUser.getUsername());
 		assertNotNull(createdUser.getToken());
-		assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+		assertEquals(UserStatus.ONLINE, createdUser.getStatus());
 	}
 
 	@Test
@@ -60,16 +64,22 @@ public class UserServiceIntegrationTest {
 		assertNull(userRepository.findByUsername("testUsername"));
 
 		User testUser = new User();
-		testUser.setName("testName");
+		testUser.setPassword("test");
 		testUser.setUsername("testUsername");
+		testUser.setName("First Last");
+		testUser.setBio("testBio");
+		testUser.setDisabilityStatus(DisabilityStatus.HEARING);
 		userService.createUser(testUser);
 
 		// attempt to create second user with same username
 		User testUser2 = new User();
 
 		// change the name but forget about the username
-		testUser2.setName("testName2");
+		testUser2.setPassword("testName2");
 		testUser2.setUsername("testUsername");
+		testUser2.setName("Second User");
+		testUser2.setBio("testBio2");
+		testUser2.setDisabilityStatus(DisabilityStatus.DEAF);
 
 		// check that an error is thrown
 		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
