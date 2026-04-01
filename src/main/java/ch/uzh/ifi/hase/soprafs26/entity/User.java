@@ -4,11 +4,12 @@ import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import jakarta.persistence.*;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
-import org.springframework.cglib.core.Local;
-
 import java.io.Serializable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Internal User Representation
@@ -53,6 +54,11 @@ public class User implements Serializable {
 
 	@Column(nullable = false)
 	private LocalDateTime creationDate;
+
+	@ElementCollection
+	@CollectionTable(name = "user_sessions", joinColumns = @JoinColumn(name = "user_id"))
+	@Column(name = "session_id")
+	private List<UUID> sessions = new ArrayList<>();
 
 	@PrePersist
 	protected void onCreate() {setCreationDate(LocalDateTime.now());}
@@ -114,4 +120,12 @@ public class User implements Serializable {
 
 	public DisabilityStatus getDisabilityStatus() {return disabilityStatus;}
 	public void setDisabilityStatus(DisabilityStatus disabilityStatus) {this.disabilityStatus = disabilityStatus;}
+
+	public List<UUID> getSessions() {
+		return sessions;
+	}
+
+	public void setSessions(List<UUID> sessions) {
+		this.sessions = sessions;
+	}
 }

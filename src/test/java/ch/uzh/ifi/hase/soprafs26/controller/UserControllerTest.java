@@ -1,10 +1,14 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs26.entity.Note;
+import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutPasswordDTO;
+import ch.uzh.ifi.hase.soprafs26.service.NoteService;
+import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,8 +24,10 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -47,6 +53,12 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserService userService;
+
+        @MockitoBean
+        private NoteService noteService;
+
+        @MockitoBean
+        private TranscriptService transcriptService;
 
     @MockitoBean
     private UserRepository userRepository;
@@ -134,6 +146,112 @@ public class UserControllerTest {
                 .content(asJsonString(userPostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isConflict());
+    }
+
+    @Test
+    public void getAllDocumentsForUser_validInput_returnsDocuments() throws Exception {
+        User authenticatedUser = new User();
+        authenticatedUser.setToken("1");
+
+        User targetUser = new User();
+        targetUser.setId(1L);
+        UUID sessionOne = UUID.randomUUID();
+        UUID sessionTwo = UUID.randomUUID();
+        targetUser.setSessions(Arrays.asList(sessionOne, sessionTwo));
+
+        Transcript transcript = new Transcript();
+        transcript.setId(5L);
+        transcript.setContent("transcript content");
+        transcript.setSessionId(sessionOne);
+        transcript.setCreatedAt(LocalDateTime.now().withNano(0));
+
+        Note note = new Note();
+        note.setId(9L);
+        note.setContent("note content");
+        note.setSessionId(sessionTwo);
+        note.setCreatedAt(LocalDateTime.now().withNano(0));
+        note.setUpdatedAt(LocalDateTime.now().withNano(0));
+
+        given(userRepository.findByToken("1")).willReturn(authenticatedUser);
+        given(userService.getByID(1L)).willReturn(targetUser);
+        given(transcriptService.getTranscriptsBySessionIds(targetUser.getSessions()))
+                .willReturn(Collections.singletonList(transcript));
+        given(noteService.getNotesBySessionIds(targetUser.getSessions()))
+                .willReturn(Collections.singletonList(note));
+
+        MockHttpServletRequestBuilder getRequest = get("/users/1/documents")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.transcripts", hasSize(1)))
+                .andExpect(jsonPath("$.transcripts[0].content", is(transcript.getContent())))
+                .andExpect(jsonPath("$.notes", hasSize(1)))
+                .andExpect(jsonPath("$.notes[0].content", is(note.getContent())));
+    }
+
+    @Test
+    public void getAllTranscriptsForUser_validInput_returnsTranscripts() throws Exception {
+        User authenticatedUser = new User();
+        authenticatedUser.setToken("1");
+
+        User targetUser = new User();
+        targetUser.setId(1L);
+        UUID sessionId = UUID.randomUUID();
+        targetUser.setSessions(Collections.singletonList(sessionId));
+
+        Transcript transcript = new Transcript();
+        transcript.setId(5L);
+        transcript.setContent("transcript content");
+        transcript.setSessionId(sessionId);
+        transcript.setCreatedAt(LocalDateTime.now().withNano(0));
+
+        given(userRepository.findByToken("1")).willReturn(authenticatedUser);
+        given(userService.getByID(1L)).willReturn(targetUser);
+        given(transcriptService.getTranscriptsBySessionIds(targetUser.getSessions()))
+                .willReturn(Collections.singletonList(transcript));
+
+        MockHttpServletRequestBuilder getRequest = get("/users/1/transcripts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].content", is(transcript.getContent())));
+    }
+
+    @Test
+    public void getAllNotesForUser_validInput_returnsNotes() throws Exception {
+        User authenticatedUser = new User();
+        authenticatedUser.setToken("1");
+
+        User targetUser = new User();
+        targetUser.setId(1L);
+        UUID sessionId = UUID.randomUUID();
+        targetUser.setSessions(Collections.singletonList(sessionId));
+
+        Note note = new Note();
+        note.setId(9L);
+        note.setContent("note content");
+        note.setSessionId(sessionId);
+        note.setCreatedAt(LocalDateTime.now().withNano(0));
+        note.setUpdatedAt(LocalDateTime.now().withNano(0));
+
+        given(userRepository.findByToken("1")).willReturn(authenticatedUser);
+        given(userService.getByID(1L)).willReturn(targetUser);
+        given(noteService.getNotesBySessionIds(targetUser.getSessions()))
+                .willReturn(Collections.singletonList(note));
+
+        MockHttpServletRequestBuilder getRequest = get("/users/1/notes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1");
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].content", is(note.getContent())));
     }
 
     @Test

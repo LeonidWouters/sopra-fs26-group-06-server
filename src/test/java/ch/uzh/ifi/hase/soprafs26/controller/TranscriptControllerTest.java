@@ -70,6 +70,8 @@ public class TranscriptControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(transcript.getId().intValue())))
                 .andExpect(jsonPath("$.content", is(transcript.getContent())));
+
+            Mockito.verify(userRepository).save(user);
     }
 
     @Test

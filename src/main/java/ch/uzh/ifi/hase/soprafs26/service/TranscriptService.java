@@ -29,6 +29,13 @@ public class TranscriptService {
         return transcriptRepository.findBySessionId(sessionId);
     }
 
+    public List<Transcript> getTranscriptsBySessionIds(List<UUID> sessionIds) {
+        if (sessionIds == null || sessionIds.isEmpty()) {
+            return List.of();
+        }
+        return transcriptRepository.findBySessionIdIn(sessionIds);
+    }
+
     public Transcript getTranscriptById(long id) {
         return transcriptRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transcript not found"));

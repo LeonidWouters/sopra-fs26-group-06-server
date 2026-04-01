@@ -73,6 +73,8 @@ public class NoteControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(note.getId().intValue())))
                 .andExpect(jsonPath("$.content", is(note.getContent())));
+
+            Mockito.verify(userRepository).save(user);
     }
 
     @Test
