@@ -31,9 +31,10 @@ public class NoteController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public NoteGetDTO createNote(@RequestBody NotePostDTO notePostDTO, @RequestHeader("token") String token) {
-        validateToken(token);
+        User user = validateToken(token);
         Note noteInput = DTOMapper.INSTANCE.convertNotePostDTOtoEntity(notePostDTO);
         Note createdNote = noteService.createNote(noteInput);
+        addSessionToUserIfMissing(user, createdNote.getSessionId());
         return DTOMapper.INSTANCE.convertEntityToNoteGetDTO(createdNote);
     }
 
@@ -76,10 +77,24 @@ public class NoteController {
         noteService.deleteNote(id);
     }
 
-    private void validateToken(String token) {
+    private User validateToken(String token) {
         User userToken = userRepository.findByToken(token);
         if (userToken == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+        return userToken;
+    }
+
+    private void addSessionToUserIfMissing(User user, UUID sessionId) {
+        if (sessionId == null) {
+            return;
+        }
+        if (user.getSessions() == null) {
+            user.setSessions(new ArrayList<>());
+        }
+        if (!user.getSessions().contains(sessionId)) {
+            user.getSessions().add(sessionId);
+            userRepository.save(user);
         }
     }
 }

@@ -29,6 +29,13 @@ public class NoteService {
         return noteRepository.findBySessionId(sessionId);
     }
 
+    public List<Note> getNotesBySessionIds(List<UUID> sessionIds) {
+        if (sessionIds == null || sessionIds.isEmpty()) {
+            return List.of();
+        }
+        return noteRepository.findBySessionIdIn(sessionIds);
+    }
+
     public Note getNoteById(long id) {
         return noteRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found"));
