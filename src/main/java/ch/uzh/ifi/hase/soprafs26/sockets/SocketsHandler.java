@@ -5,17 +5,21 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-
+import tools.jackson.databind.ObjectMapper;
 
 
 public class SocketsHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        session.sendMessage(new TextMessage("Connected to " + session.getRemoteAddress()));
+        System.out.println(session.getUri());
+
+        TextMessage greeting = new TextMessage("Connected to " + session.getRemoteAddress());
+
+        session.sendMessage(greeting);
+
     }
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        session.getId();
         String msg = message.getPayload();
         System.out.println("Received message: " + msg);
         System.out.println("From: " + session.getRemoteAddress());
