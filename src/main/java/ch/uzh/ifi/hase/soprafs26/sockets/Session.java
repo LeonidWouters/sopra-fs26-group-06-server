@@ -1,4 +1,5 @@
 package ch.uzh.ifi.hase.soprafs26.sockets;
+import ch.uzh.ifi.hase.soprafs26.room.RoomStatus;
 
 import org.springframework.web.socket.WebSocketSession;
 
@@ -17,12 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 // The session is designed to support a maximum of two participants.
 
 public class Session {
-
-	public enum Status {
-		EMPTY,
-		JOINABLE,
-		FULL
-	}
     //Set the maximum number of participants to 2
 	private static final int MAX_PARTICIPANTS = 2;
 
@@ -31,7 +26,7 @@ public class Session {
 	private final LocalDateTime createdAt;
 
 	private volatile LocalDateTime lastActivityAt;
-	private volatile Status status;
+	private volatile RoomStatus status;
 
 	private Long callerId;
 	private Long calleeId;
@@ -49,7 +44,7 @@ public class Session {
 		this.id = UUID.randomUUID();
 		this.createdAt = LocalDateTime.now();
 		this.lastActivityAt = this.createdAt;
-		this.status = Status.EMPTY;
+		this.status = RoomStatus.EMPTY;
 		this.participants = new ConcurrentHashMap<>();
 	}
 
@@ -70,7 +65,7 @@ public class Session {
 		return lastActivityAt;
 	}
 
-	public Status getStatus() {
+	public RoomStatus getStatus() {
 		return status;
 	}
 
@@ -159,13 +154,13 @@ public class Session {
 		this.lastActivityAt = LocalDateTime.now();
 		int participantsCount = participants.size();
 		if (participantsCount == 0) {
-			this.status = Status.EMPTY;
+			this.status = RoomStatus.EMPTY;
 		}
 		else if (participantsCount == 1) {
-			this.status = Status.JOINABLE;
+			this.status = RoomStatus.JOINABLE;
 		}
 		else {
-			this.status = Status.FULL;
+			this.status = RoomStatus.FULL;
 		}
 	}
     
