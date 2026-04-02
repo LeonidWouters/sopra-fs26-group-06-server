@@ -147,18 +147,20 @@ public class SocketsHandler extends TextWebSocketHandler {
             roomId = sessionOpt.get().getRoomId();
         }
 
-        Optional<Session> remainingSession = sessionManager.leaveRoom(roomId, userId);
+        final Long resolvedRoomId = roomId;
+
+        Optional<Session> remainingSession = sessionManager.leaveRoom(resolvedRoomId, userId);
 
         session.getAttributes().remove(ATTR_ROOM_ID);
 
         if (notifyCurrent) {
-            sendJson(session, Map.of("type", "left", "roomId", roomId));
+            sendJson(session, Map.of("type", "left", "roomId", resolvedRoomId));
         }
 
         if (remainingSession.isPresent()) {
             remainingSession.get().getPeerSocket(userId).ifPresent(peer -> {
                 try {
-                    sendJson(peer, Map.of("type", "peer-left", "roomId", roomId, "userId", userId));
+                    sendJson(peer, Map.of("type", "peer-left", "roomId", resolvedRoomId, "userId", userId));
                 }
                 catch (Exception ignored) {
                     // Best-effort peer notifications.
@@ -186,7 +188,13 @@ public class SocketsHandler extends TextWebSocketHandler {
             return;
         }
 
-        ObjectNode relayPayload = payload.deepCopy();
+        ObjectNode relayPayload = OBJECT_MAPPER.createObjectNode();
+        if (payload.isObject()) {
+            relayPayload.setAll((ObjectNode) payload);
+        }
+        else {
+            relayPayload.set("payload", payload);
+        }
         relayPayload.put("fromUserId", userId);
         relayPayload.put("roomId", roomId);
         sendJson(peerOpt.get(), relayPayload);
