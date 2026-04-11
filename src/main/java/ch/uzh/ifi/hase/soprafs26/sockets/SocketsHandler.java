@@ -10,6 +10,12 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 
 public class SocketsHandler extends TextWebSocketHandler {
+    private static final String ATTR_USER_ID = "userId";
+    private static final String ATTR_ROOM_ID = "roomId";
+    private static final String TYPE_JOIN = "join";
+    private static final String TYPE_LEAVE = "leave";
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    
     private final UserRepository userRepository;
     private final SessionManager sessionManager;
 
