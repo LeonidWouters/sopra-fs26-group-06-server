@@ -10,4 +10,6 @@ import java.util.UUID;
 @Repository("noteRepository")
 public interface NoteRepository extends JpaRepository<Note, Long> {
 	List<Note> findBySessionId(UUID sessionId);
+
+	List<Note> findBySessionIdIn(List<UUID> sessionIds);
 }

@@ -75,6 +75,10 @@ test {
     maxParallelForks = 1
 }
 
+jar {
+    enabled = false
+}
+
 File secretPropsFile = file('./local.properties')
 if (secretPropsFile.exists()) {
     Properties p = new Properties()

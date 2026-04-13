@@ -1,10 +1,14 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs26.entity.Note;
+import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs26.service.NoteService;
+import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +29,15 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final NoteService noteService;
+    private final TranscriptService transcriptService;
     private final UserRepository userRepository;
 
-    UserController(UserService userService, UserRepository userRepository) {
+    UserController(UserService userService, NoteService noteService, TranscriptService transcriptService,
+                   UserRepository userRepository) {
         this.userService = userService;
+        this.noteService = noteService;
+        this.transcriptService = transcriptService;
         this.userRepository = userRepository;
     }
 
@@ -65,6 +74,70 @@ public class UserController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
         }
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+    }
+
+    @GetMapping("/users/{id}/documents")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserDocumentsGetDTO getAllDocumentsForUser(@PathVariable String id, @RequestHeader("token") String token) {
+        User user = userService.getByID(Long.parseLong(id));
+        User userToken = userRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+
+        List<UUID> sessions = user.getSessions();
+        List<TranscriptGetDTO> transcriptGetDTOs = new ArrayList<>();
+        for (Transcript transcript : transcriptService.getTranscriptsBySessionIds(sessions)) {
+            transcriptGetDTOs.add(DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(transcript));
+        }
+
+        List<NoteGetDTO> noteGetDTOs = new ArrayList<>();
+        for (Note note : noteService.getNotesBySessionIds(sessions)) {
+            noteGetDTOs.add(DTOMapper.INSTANCE.convertEntityToNoteGetDTO(note));
+        }
+
+        UserDocumentsGetDTO response = new UserDocumentsGetDTO();
+        response.setTranscripts(transcriptGetDTOs);
+        response.setNotes(noteGetDTOs);
+        return response;
+    }
+
+    @GetMapping("/users/{id}/transcripts")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<TranscriptGetDTO> getAllTranscriptsForUser(@PathVariable String id,
+                                                           @RequestHeader("token") String token) {
+        User user = userService.getByID(Long.parseLong(id));
+        User userToken = userRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+
+        List<UUID> sessions = user.getSessions();
+        List<TranscriptGetDTO> transcriptGetDTOs = new ArrayList<>();
+        for (Transcript transcript : transcriptService.getTranscriptsBySessionIds(sessions)) {
+            transcriptGetDTOs.add(DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(transcript));
+        }
+        return transcriptGetDTOs;
+    }
+
+    @GetMapping("/users/{id}/notes")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<NoteGetDTO> getAllNotesForUser(@PathVariable String id, @RequestHeader("token") String token) {
+        User user = userService.getByID(Long.parseLong(id));
+        User userToken = userRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+
+        List<UUID> sessions = user.getSessions();
+        List<NoteGetDTO> noteGetDTOs = new ArrayList<>();
+        for (Note note : noteService.getNotesBySessionIds(sessions)) {
+            noteGetDTOs.add(DTOMapper.INSTANCE.convertEntityToNoteGetDTO(note));
+        }
+        return noteGetDTOs;
     }
 
     @GetMapping("/users/{id}/verifier")

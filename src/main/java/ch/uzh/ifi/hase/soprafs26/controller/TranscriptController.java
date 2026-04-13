@@ -32,9 +32,10 @@ public class TranscriptController {
     @ResponseBody
     public TranscriptGetDTO createTranscript(@RequestBody TranscriptPostDTO transcriptPostDTO,
                                              @RequestHeader("token") String token) {
-        validateToken(token);
+        User user = validateToken(token);
         Transcript transcriptInput = DTOMapper.INSTANCE.convertTranscriptPostDTOtoEntity(transcriptPostDTO);
         Transcript createdTranscript = transcriptService.createTranscript(transcriptInput);
+        addSessionToUserIfMissing(user, createdTranscript.getSessionId());
         return DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(createdTranscript);
     }
 
@@ -80,10 +81,24 @@ public class TranscriptController {
         transcriptService.deleteTranscript(id);
     }
 
-    private void validateToken(String token) {
+    private User validateToken(String token) {
         User userToken = userRepository.findByToken(token);
         if (userToken == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+        return userToken;
+    }
+
+    private void addSessionToUserIfMissing(User user, UUID sessionId) {
+        if (sessionId == null) {
+            return;
+        }
+        if (user.getSessions() == null) {
+            user.setSessions(new ArrayList<>());
+        }
+        if (!user.getSessions().contains(sessionId)) {
+            user.getSessions().add(sessionId);
+            userRepository.save(user);
         }
     }
 }

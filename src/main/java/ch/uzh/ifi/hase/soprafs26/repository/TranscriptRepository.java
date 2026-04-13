@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository("transcriptRepository")
 public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
     List<Transcript> findBySessionId(UUID sessionId);
+
+    List<Transcript> findBySessionIdIn(List<UUID> sessionIds);
 }
