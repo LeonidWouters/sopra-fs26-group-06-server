@@ -33,7 +33,9 @@ public class RoomController {
         if(roomService.getAllRooms() == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Rooms present in database");
         }
-        return roomService.getAllRooms();
+        return roomService.getAllRooms().stream()
+                .filter(room -> !room.isPrivate())
+                .toList();
     }
 
     @GetMapping("/rooms/{id}")
@@ -54,12 +56,12 @@ public class RoomController {
     @PostMapping("/rooms/private")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public Room createPrivateRoom(@RequestHeader("token") String token) {
+    public Room createPrivateRoom(@RequestBody java.util.Map<String, String> body, @RequestHeader("token") String token) {
         User userToken = UserRepository.findByToken(token);
         if (userToken == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
         }
-        return roomService.createPrivateRoom(userToken.getId());
+        return roomService.createPrivateRoom(userToken.getId(), body.get("name"), body.get("description"));
     }
 
     @PostMapping("/rooms/{id}/invite")

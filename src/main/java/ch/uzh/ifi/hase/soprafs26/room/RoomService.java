@@ -28,9 +28,9 @@ public class RoomService {
         return rooms.get(id);
     }
 
-    public Room createPrivateRoom(Long creatorId) {
+    public Room createPrivateRoom(Long creatorId, String name, String description) {
         long newId = nextPrivateRoomId++;
-        Room room = Room.createPrivateRoom(newId, creatorId);
+        Room room = Room.createPrivateRoom(newId, creatorId, name, description);
         rooms.put(String.valueOf(newId), room);
         return room;
     }

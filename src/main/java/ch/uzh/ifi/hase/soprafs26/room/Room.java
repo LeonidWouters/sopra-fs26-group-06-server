@@ -38,11 +38,11 @@ public class Room {
         return room;
     }
 
-    public static Room createPrivateRoom(long id, Long creatorId) {
+    public static Room createPrivateRoom(long id, Long creatorId, String name, String description) {
         Room room = new Room();
         room.setId(id);
-        room.setName("private-" + id);
-        room.setDescription("Private room");
+        room.setName(name);
+        room.setDescription(description);
         room.setRoomStatus(RoomStatus.EMPTY);
         room.setBaseTranscript("");
         room.setBaseNote("");
