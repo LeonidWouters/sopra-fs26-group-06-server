@@ -60,6 +60,16 @@ public class User implements Serializable {
 	@Column(name = "session_id")
 	private List<UUID> sessions = new ArrayList<>();
 
+	@ElementCollection
+	@CollectionTable(name = "user_pending_requests", joinColumns = @JoinColumn(name = "user_id"))
+	@Column(name = "requester_id")
+	private List<Long> pendingFriendRequests = new ArrayList<>();
+
+	@ElementCollection
+	@CollectionTable(name = "user_friends", joinColumns = @JoinColumn(name = "user_id"))
+	@Column(name = "friend_id")
+	private List<Long> friends = new ArrayList<>();
+
 	@PrePersist
 	protected void onCreate() {setCreationDate(LocalDateTime.now());}
 
@@ -128,4 +138,10 @@ public class User implements Serializable {
 	public void setSessions(List<UUID> sessions) {
 		this.sessions = sessions;
 	}
+
+	public List<Long> getPendingFriendRequests() {return pendingFriendRequests;}
+	public void setPendingFriendRequests(List<Long> pendingFriendRequests) {this.pendingFriendRequests = pendingFriendRequests;}
+
+	public List<Long> getFriends() {return friends;}
+	public void setFriends(List<Long> friends) {this.friends = friends;}
 }

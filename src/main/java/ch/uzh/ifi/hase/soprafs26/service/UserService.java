@@ -13,6 +13,7 @@ import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,5 +118,77 @@ public class UserService {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,baseError);
 		}
 		return true;
+	}
+
+	public void sendFriendRequest(Long fromId, Long toId) {
+		User from = userRepository.findByid(fromId);
+		User to = userRepository.findByid(toId);
+
+		if (from == null || to == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		}
+		if (fromId.equals(toId)) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot send friend request to yourself");
+		}
+		if (to.getFriends().contains(fromId)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Already friends");
+		}
+		if (to.getPendingFriendRequests().contains(fromId)) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT, "Friend request already sent");
+		}
+
+		to.getPendingFriendRequests().add(fromId);
+		userRepository.save(to);
+	}
+
+	public void acceptFriendRequest(Long userId, Long fromId) {
+		User user = userRepository.findByid(userId);
+		User from = userRepository.findByid(fromId);
+
+		if (user == null || from == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		}
+		if (!user.getPendingFriendRequests().contains(fromId)) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No pending request from this user");
+		}
+
+		user.getPendingFriendRequests().remove(fromId);
+		user.getFriends().add(fromId);
+		from.getFriends().add(userId);
+
+		userRepository.save(user);
+		userRepository.save(from);
+	}
+
+	public List<User> getFriends(Long userId) {
+		User user = userRepository.findByid(userId);
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		}
+
+		List<User> friendList = new ArrayList<>();
+		for (Long friendId : user.getFriends()) {
+			User friend = userRepository.findByid(friendId);
+			if (friend != null) {
+				friendList.add(friend);
+			}
+		}
+		return friendList;
+	}
+
+	public List<User> getPendingRequests(Long userId) {
+		User user = userRepository.findByid(userId);
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+		}
+
+		List<User> requesters = new ArrayList<>();
+		for (Long requesterId : user.getPendingFriendRequests()) {
+			User requester = userRepository.findByid(requesterId);
+			if (requester != null) {
+				requesters.add(requester);
+			}
+		}
+		return requesters;
 	}
 }
