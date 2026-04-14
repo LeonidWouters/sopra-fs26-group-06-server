@@ -60,6 +60,9 @@ public class User implements Serializable {
 	@Column(name = "session_id")
 	private List<UUID> sessions = new ArrayList<>();
 
+	@Column(nullable = true)
+	private Long roomId;
+
 	@PrePersist
 	protected void onCreate() {setCreationDate(LocalDateTime.now());}
 
@@ -127,5 +130,13 @@ public class User implements Serializable {
 
 	public void setSessions(List<UUID> sessions) {
 		this.sessions = sessions;
+	}
+
+	public Long getRoomId() {
+		return roomId;
+	}
+
+	public void setRoomId(Long roomId) {
+		this.roomId = roomId;
 	}
 }

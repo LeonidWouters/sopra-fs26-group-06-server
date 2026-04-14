@@ -62,6 +62,8 @@ public class RoomController {
         if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
             room.setRoomStatus(RoomStatus.JOINABLE);
             room.setCallerID(userToken.getId());
+            userToken.setRoomId(room.getId());
+            UserRepository.save(userToken);
             return room;
         }
         if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
@@ -70,6 +72,8 @@ public class RoomController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "User cannot be caller and callee");
             }
             room.setCalleeID(userToken.getId());
+            userToken.setRoomId(room.getId());
+            UserRepository.save(userToken);
             return room;
         }
         if(room.getRoomStatus().equals(RoomStatus.FULL)){
@@ -96,6 +100,8 @@ public class RoomController {
             if (userToken.getId().equals(room.getCalleeID())){
                 room.setCalleeID(null);
             }
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
             room.setBaseTranscript("");
             room.setBaseNote("");
         }
@@ -107,6 +113,8 @@ public class RoomController {
             if (userToken.getId().equals(room.getCalleeID())){
                 room.setCalleeID(null);
             }
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
             room.setBaseTranscript("");
             room.setBaseNote("");
         }

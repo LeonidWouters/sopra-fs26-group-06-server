@@ -7,6 +7,8 @@ import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs26.room.Room;
+import ch.uzh.ifi.hase.soprafs26.room.RoomService;
 import ch.uzh.ifi.hase.soprafs26.service.NoteService;
 import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
@@ -33,12 +35,15 @@ public class UserController {
     private final TranscriptService transcriptService;
     private final UserRepository userRepository;
 
+    private final RoomService roomService;
+
     UserController(UserService userService, NoteService noteService, TranscriptService transcriptService,
-                   UserRepository userRepository) {
+                   UserRepository userRepository, RoomService roomService) {
         this.userService = userService;
         this.noteService = noteService;
         this.transcriptService = transcriptService;
         this.userRepository = userRepository;
+        this.roomService = roomService;
     }
 
     @GetMapping("/users")
@@ -202,12 +207,30 @@ public class UserController {
 		userRepository.save(user);
 	}
 
-	@PutMapping("users/logout")
+	@PostMapping("users/logout")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@ResponseBody
-	public void logout(@RequestHeader("token") String token) {
-		User user = userRepository.findByToken(token);
+	public void logout(@RequestHeader(value = "token", required = false) String token, @RequestParam(value = "token", required = false) String tokenParam) {
+		String finalToken = token != null ? token : tokenParam;
+		if (finalToken == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not provided");
+		}
+		User user = userRepository.findByToken(finalToken);
 		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+
+		if (user.getRoomId() != null) {
+			Room room = roomService.getRoomById(user.getRoomId().toString());
+			if (room != null) {
+				if (room.getCallerID() != null && room.getCallerID().equals(user.getId())) {
+					room.setCallerID(null);
+				}
+				if (room.getCalleeID() != null && room.getCalleeID().equals(user.getId())) {
+					room.setCalleeID(null);
+				}
+			}
+			user.setRoomId(null);
+		}
+
 		user.setToken(UUID.randomUUID().toString());
 		user.setStatus(UserStatus.OFFLINE);
 		userRepository.save(user);
