@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.RoomInviteDTO;
 
 import java.util.List;
 
@@ -49,6 +50,44 @@ public class RoomController {
         }
         return room;
     }
+
+    @PostMapping("/rooms/private")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public Room createPrivateRoom(@RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+        return roomService.createPrivateRoom(userToken.getId());
+    }
+
+    @PostMapping("/rooms/{id}/invite")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inviteUser(@PathVariable Long id, @RequestBody RoomInviteDTO inviteDTO, @RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");}
+        Room room = roomService.getRoomById(Long.toString(id));
+        if (room == null) {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");}
+        if (!room.isPrivate()) {throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room is not private");}
+        if (!userToken.getId().equals(room.getCreatorId())) {throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the creator can invite users");}
+        User invitedUser = UserRepository.findByUsername(inviteDTO.getUsername());
+        if (invitedUser == null) {throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found: " + inviteDTO.getUsername());}
+
+        roomService.inviteUser(id, invitedUser.getId());
+    }
+
+    @GetMapping("/users/{id}/invites")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<Room> getInvites(@PathVariable Long id, @RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");}
+        if (!userToken.getId().equals(id)) {throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only see your own invites");}
+        return roomService.getInvitesForUser(id);
+    }
+
     @PutMapping("/rooms/{id}/join")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -58,7 +97,16 @@ public class RoomController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
         }
 
-        Room room =  roomService.getRoomById(Long.toString(id));
+        Room room = roomService.getRoomById(Long.toString(id));
+
+        if (room.isPrivate()) {
+            boolean isCreator = userToken.getId().equals(room.getCreatorId());
+            boolean isInvited = userToken.getId().equals(room.getInvitedUserId());
+            if (!isCreator && !isInvited) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not invited to this room");
+            }
+        }
+
         if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
             room.setRoomStatus(RoomStatus.JOINABLE);
             room.setCallerID(userToken.getId());
@@ -77,9 +125,9 @@ public class RoomController {
         }
         return room;
     }
+
     @PutMapping("/rooms/{id}/leave")
     @ResponseStatus(HttpStatus.OK)
-
     @ResponseBody
     public Room leaveRoom(@PathVariable Long id, @RequestHeader("token") String token) {
         User userToken = UserRepository.findByToken(token);
@@ -111,7 +159,11 @@ public class RoomController {
             room.setBaseNote("");
         }
 
-        return room;
+        if (room.isPrivate() && room.getRoomStatus().equals(RoomStatus.EMPTY)) {
+            roomService.deleteRoom(id);
+            return null;
+        }
 
+        return room;
     }
 }

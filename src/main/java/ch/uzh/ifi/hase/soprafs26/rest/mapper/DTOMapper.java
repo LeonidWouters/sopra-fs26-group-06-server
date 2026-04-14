@@ -96,6 +96,6 @@ public interface DTOMapper {
     @Mapping(source = "content", target = "content")
     @Mapping(source = "createdAt", target = "createdAt")
     @Mapping(source = "sessionId", target = "sessionId")
-    TranscriptGetDTO convertEntityToTranscriptGetDTO(Transcript transcript);
+    TranscriptGetDTO convertEntityToTranscriptGetDTO(Transcript transcript);}
 
-}
+
