@@ -222,6 +222,8 @@ public class UserController {
 		if (user.getRoomId() != null) {
 			Room room = roomService.getRoomById(user.getRoomId().toString());
 			if (room != null) {
+                persistRoomArtifactsForUser(user, room);
+
 				if (room.getCallerID() != null && room.getCallerID().equals(user.getId())) {
 					room.setCallerID(null);
 				}
@@ -248,4 +250,37 @@ public class UserController {
 		user.setStatus(UserStatus.OFFLINE);
 		userRepository.save(user);
 	}
+
+    private void persistRoomArtifactsForUser(User user, Room room) {
+        String noteContent = room.getBaseNote() == null ? "" : room.getBaseNote().trim();
+        String transcriptContent = room.getBaseTranscript() == null ? "" : room.getBaseTranscript().trim();
+
+        if (noteContent.isBlank() && transcriptContent.isBlank()) {
+            return;
+        }
+
+        UUID sessionId = UUID.randomUUID();
+
+        if (!noteContent.isBlank()) {
+            Note note = new Note();
+            note.setContent(noteContent);
+            note.setSessionId(sessionId);
+            noteService.createNote(note);
+        }
+
+        if (!transcriptContent.isBlank()) {
+            Transcript transcript = new Transcript();
+            transcript.setContent(transcriptContent);
+            transcript.setSessionId(sessionId);
+            transcriptService.createTranscript(transcript);
+        }
+
+        if (user.getSessions() == null) {
+            user.setSessions(new ArrayList<>());
+        }
+
+        if (!user.getSessions().contains(sessionId)) {
+            user.getSessions().add(sessionId);
+        }
+    }
 }

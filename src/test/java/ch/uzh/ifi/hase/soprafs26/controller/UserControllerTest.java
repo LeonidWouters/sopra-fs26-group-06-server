@@ -327,6 +327,8 @@ public class UserControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(userRepository).save(user);
+        verify(noteService).createNote(Mockito.any(Note.class));
+        verify(transcriptService).createTranscript(Mockito.any(Transcript.class));
         org.junit.jupiter.api.Assertions.assertNull(user.getRoomId());
         org.junit.jupiter.api.Assertions.assertEquals(UserStatus.OFFLINE, user.getStatus());
         org.junit.jupiter.api.Assertions.assertNotEquals("1", user.getToken());
@@ -360,6 +362,8 @@ public class UserControllerTest {
                 .andExpect(status().isNoContent());
 
         verify(userRepository).save(user);
+        verify(noteService).createNote(Mockito.any(Note.class));
+        verify(transcriptService).createTranscript(Mockito.any(Transcript.class));
         org.junit.jupiter.api.Assertions.assertNull(room.getCallerID());
         org.junit.jupiter.api.Assertions.assertNull(room.getCalleeID());
         org.junit.jupiter.api.Assertions.assertEquals(RoomStatus.EMPTY, room.getRoomStatus());

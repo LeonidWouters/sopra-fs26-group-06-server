@@ -31,8 +31,10 @@ public class TranscriptController {
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public TranscriptGetDTO createTranscript(@RequestBody TranscriptPostDTO transcriptPostDTO,
-                                             @RequestHeader("token") String token) {
-        User user = validateToken(token);
+                                             @RequestHeader(value = "token", required = false) String token,
+                                             @RequestParam(value = "token", required = false) String tokenParam) {
+        String finalToken = token != null ? token : tokenParam;
+        User user = validateToken(finalToken);
         Transcript transcriptInput = DTOMapper.INSTANCE.convertTranscriptPostDTOtoEntity(transcriptPostDTO);
         Transcript createdTranscript = transcriptService.createTranscript(transcriptInput);
         addSessionToUserIfMissing(user, createdTranscript.getSessionId());

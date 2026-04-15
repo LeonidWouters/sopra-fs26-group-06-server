@@ -30,8 +30,11 @@ public class NoteController {
     @PostMapping("/notes")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public NoteGetDTO createNote(@RequestBody NotePostDTO notePostDTO, @RequestHeader("token") String token) {
-        User user = validateToken(token);
+    public NoteGetDTO createNote(@RequestBody NotePostDTO notePostDTO,
+                                 @RequestHeader(value = "token", required = false) String token,
+                                 @RequestParam(value = "token", required = false) String tokenParam) {
+        String finalToken = token != null ? token : tokenParam;
+        User user = validateToken(finalToken);
         Note noteInput = DTOMapper.INSTANCE.convertNotePostDTOtoEntity(notePostDTO);
         Note createdNote = noteService.createNote(noteInput);
         addSessionToUserIfMissing(user, createdNote.getSessionId());

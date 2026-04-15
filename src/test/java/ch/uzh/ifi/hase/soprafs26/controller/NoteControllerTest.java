@@ -77,6 +77,40 @@ public class NoteControllerTest {
             Mockito.verify(userRepository).save(user);
     }
 
+            @Test
+            public void createNote_withTokenQueryParam_noteCreated() throws Exception {
+            UUID sessionId = UUID.randomUUID();
+
+            User user = new User();
+            user.setToken("1");
+            given(userRepository.findByToken("1")).willReturn(user);
+
+            Note note = new Note();
+            note.setId(2L);
+            note.setContent("note content query");
+            note.setSessionId(sessionId);
+            note.setCreatedAt(LocalDateTime.now().withNano(0));
+            note.setUpdatedAt(LocalDateTime.now().withNano(0));
+
+            NotePostDTO notePostDTO = new NotePostDTO();
+            notePostDTO.setContent("note content query");
+            notePostDTO.setSessionId(sessionId);
+
+            given(noteService.createNote(Mockito.any())).willReturn(note);
+
+            MockHttpServletRequestBuilder postRequest = post("/notes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "1")
+                .content(asJsonString(notePostDTO));
+
+            mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(note.getId().intValue())))
+                .andExpect(jsonPath("$.content", is(note.getContent())));
+
+            Mockito.verify(userRepository).save(user);
+            }
+
     @Test
     public void getNotesBySession_validToken_returnsNotes() throws Exception {
         UUID sessionId = UUID.randomUUID();
