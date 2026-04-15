@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.room.Room;
+import ch.uzh.ifi.hase.soprafs26.room.RoomStatus;
 import ch.uzh.ifi.hase.soprafs26.room.RoomService;
 import ch.uzh.ifi.hase.soprafs26.service.NoteService;
 import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
@@ -227,6 +228,18 @@ public class UserController {
 				if (room.getCalleeID() != null && room.getCalleeID().equals(user.getId())) {
 					room.setCalleeID(null);
 				}
+
+                if (room.getCallerID() == null && room.getCalleeID() == null) {
+                    room.setRoomStatus(RoomStatus.EMPTY);
+                    room.setBaseTranscript("");
+                    room.setBaseNote("");
+                }
+                else if (room.getCallerID() == null || room.getCalleeID() == null) {
+                    room.setRoomStatus(RoomStatus.JOINABLE);
+                }
+                else {
+                    room.setRoomStatus(RoomStatus.FULL);
+                }
 			}
 			user.setRoomId(null);
 		}
