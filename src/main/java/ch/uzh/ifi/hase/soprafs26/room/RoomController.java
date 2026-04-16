@@ -59,38 +59,26 @@ public class RoomController {
         }
 
         Room room =  roomService.getRoomById(Long.toString(id));
-        if (room == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
-        }
-
-        normalizeRoomParticipants(room);
-        recomputeRoomStatus(room);
-
-        if (userToken.getId().equals(room.getCallerID()) || userToken.getId().equals(room.getCalleeID())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "User already in this room");
-        }
-
         if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
+            room.setRoomStatus(RoomStatus.JOINABLE);
             room.setCallerID(userToken.getId());
+            userToken.setRoomId(room.getId());
+            UserRepository.save(userToken);
+            return room;
         }
-
-        else if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
-            if (room.getCallerID() == null) {
-                room.setCallerID(userToken.getId());
+        if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
+            room.setRoomStatus(RoomStatus.FULL);
+            if(userToken.getId() == room.getCallerID()){
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "User cannot be caller and callee");
             }
-            else {
-                room.setCalleeID(userToken.getId());
-            }
+            room.setCalleeID(userToken.getId());
+            userToken.setRoomId(room.getId());
+            UserRepository.save(userToken);
+            return room;
         }
-
-        else if(room.getRoomStatus().equals(RoomStatus.FULL)){
+        if(room.getRoomStatus().equals(RoomStatus.FULL)){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room is Full");
         }
-
-        recomputeRoomStatus(room);
-        userToken.setRoomId(room.getId());
-        UserRepository.save(userToken);
-
         return room;
     }
     @PutMapping("/rooms/{id}/leave")
@@ -104,53 +92,34 @@ public class RoomController {
         }
 
         Room room =  roomService.getRoomById(Long.toString(id));
-        if (room == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
+        if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
+            room.setRoomStatus(RoomStatus.EMPTY);
+            if (userToken.getId().equals(room.getCallerID())) {
+                room.setCallerID(null);
+            }
+            if (userToken.getId().equals(room.getCalleeID())){
+                room.setCalleeID(null);
+            }
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
+            room.setBaseTranscript("");
+            room.setBaseNote("");
         }
-
-        if (userToken.getId().equals(room.getCallerID())) {
-            room.setCallerID(null);
-        }
-        if (userToken.getId().equals(room.getCalleeID())) {
-            room.setCalleeID(null);
-        }
-
-        normalizeRoomParticipants(room);
-        recomputeRoomStatus(room);
-
-        userToken.setRoomId(null);
-        UserRepository.save(userToken);
-
-        if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
+        if(room.getRoomStatus().equals(RoomStatus.FULL)){
+            room.setRoomStatus(RoomStatus.JOINABLE);
+            if (userToken.getId().equals(room.getCallerID())){
+                room.setCallerID(null);
+            }
+            if (userToken.getId().equals(room.getCalleeID())){
+                room.setCalleeID(null);
+            }
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
             room.setBaseTranscript("");
             room.setBaseNote("");
         }
 
         return room;
 
-    }
-
-    private void normalizeRoomParticipants(Room room) {
-        if (room.getCallerID() == null && room.getCalleeID() != null) {
-            room.setCallerID(room.getCalleeID());
-            room.setCalleeID(null);
-        }
-    }
-
-    private void recomputeRoomStatus(Room room) {
-        boolean hasCaller = room.getCallerID() != null;
-        boolean hasCallee = room.getCalleeID() != null;
-
-        if (!hasCaller && !hasCallee) {
-            room.setRoomStatus(RoomStatus.EMPTY);
-            return;
-        }
-
-        if (hasCaller && hasCallee) {
-            room.setRoomStatus(RoomStatus.FULL);
-            return;
-        }
-
-        room.setRoomStatus(RoomStatus.JOINABLE);
     }
 }
