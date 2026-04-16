@@ -27,7 +27,6 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +97,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
                 .andExpect(jsonPath("$[0].name", is(user.getName())))
                 .andExpect(jsonPath("$[0].bio", is(user.getBio())))
-                .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))))
+                .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
                 .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
     }
     @Test

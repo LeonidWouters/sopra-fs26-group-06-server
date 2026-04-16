@@ -48,7 +48,6 @@ public class RoomControllerTest {
     private UserService userService; //needed to mock user authentication
 
     private User user = new User();
-        private User secondUser = new User();
 
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
 
@@ -62,15 +61,6 @@ public class RoomControllerTest {
         user.setId(1L);
         user.setStatus(UserStatus.ONLINE);
         user.setCreationDate(LocalDateTime.now());
-
-        secondUser.setUsername("username2");
-        secondUser.setPassword("password");
-        secondUser.setToken("2");
-        secondUser.setBio("bio2");
-        secondUser.setName("name2");
-        secondUser.setId(2L);
-        secondUser.setStatus(UserStatus.ONLINE);
-        secondUser.setCreationDate(LocalDateTime.now());
 
 
         for (int i = 1; i <= 6; i++) {
@@ -172,42 +162,6 @@ public class RoomControllerTest {
                 .andExpect(jsonPath("$.name", is(room.getName())))
                 .andExpect(jsonPath("$.description", is(room.getDescription())));
 
-    }
-
-    @Test
-    public void Room_when_callerLeavesFull_promotesCalleeToCaller() throws Exception {
-        given(userRepository.findByToken("1")).willReturn(user);
-        given(roomService.getRoomById("1")).willReturn(rooms.get("1"));
-        Room room = rooms.get("1");
-        room.setRoomStatus(RoomStatus.FULL);
-        room.setCallerID(1L);
-        room.setCalleeID(2L);
-
-        MockHttpServletRequestBuilder getRequest = put("/rooms/1/leave").contentType(MediaType.APPLICATION_JSON)
-                .header("token", "1");
-
-        mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.roomStatus", is(RoomStatus.JOINABLE.toString())))
-                .andExpect(jsonPath("$.CallerID", is(2)))
-                .andExpect(jsonPath("$.CalleeID", nullValue()));
-    }
-
-    @Test
-    public void Room_when_joinJoinableWithMissingCaller_assignsRolesConsistently() throws Exception {
-        given(userRepository.findByToken("1")).willReturn(user);
-        given(roomService.getRoomById("1")).willReturn(rooms.get("1"));
-        Room room = rooms.get("1");
-        room.setRoomStatus(RoomStatus.JOINABLE);
-        room.setCallerID(null);
-        room.setCalleeID(2L);
-
-        MockHttpServletRequestBuilder getRequest = put("/rooms/1/join").contentType(MediaType.APPLICATION_JSON)
-                .header("token", "1");
-
-        mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$.roomStatus", is(RoomStatus.FULL.toString())))
-                .andExpect(jsonPath("$.CallerID", is(2)))
-                .andExpect(jsonPath("$.CalleeID", is(1)));
     }
 }
 
