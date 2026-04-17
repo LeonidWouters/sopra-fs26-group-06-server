@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs26.sockets;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs26.room.Room;
+import ch.uzh.ifi.hase.soprafs26.room.RoomService;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -20,14 +22,19 @@ public class SocketsHandler extends TextWebSocketHandler {
     private static final String ATTR_ROOM_ID = "roomId";
     private static final String TYPE_JOIN = "join";
     private static final String TYPE_LEAVE = "leave";
+    private static final String TYPE_MARKDOWN_UPDATE = "markdown-update";
+    private static final String TYPE_SPEECH_TO_TEXT = "speech-to-text";
+    private static final String TYPE_TEXT_MSG = "text-msg";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final UserRepository userRepository;
     private final SessionManager sessionManager;
+    private final RoomService roomService;
 
-    public SocketsHandler(UserRepository userRepository, SessionManager sessionManager) {
+    public SocketsHandler(UserRepository userRepository, SessionManager sessionManager, RoomService roomService) {
         this.userRepository = userRepository;
         this.sessionManager = sessionManager;
+        this.roomService = roomService;
     }
 
     @Override
@@ -70,6 +77,8 @@ public class SocketsHandler extends TextWebSocketHandler {
             handleLeave(session, userId, true);
             return;
         }
+
+        updateRoomBuffers(session, payload, type);
 
         relayToPeer(session, payload, userId);
     }
@@ -198,6 +207,47 @@ public class SocketsHandler extends TextWebSocketHandler {
         relayPayload.put("fromUserId", userId);
         relayPayload.put("roomId", roomId);
         sendJson(peerOpt.get(), relayPayload);
+    }
+
+    private void updateRoomBuffers(WebSocketSession session, JsonNode payload, String type) {
+        Long roomId = getRoomId(session).orElse(null);
+        if (roomId == null) {
+            return;
+        }
+
+        Room room = roomService.getRoomById(roomId.toString());
+        if (room == null) {
+            return;
+        }
+
+        if (TYPE_MARKDOWN_UPDATE.equals(type)) {
+            String content = payload.hasNonNull("content") ? payload.get("content").asText("") : "";
+            room.setBaseNote(content == null ? "" : content);
+            return;
+        }
+
+        if (TYPE_SPEECH_TO_TEXT.equals(type)) {
+            String content = payload.hasNonNull("content") ? payload.get("content").asText("") : "";
+            appendToBaseTranscript(room, content);
+            return;
+        }
+
+        if (TYPE_TEXT_MSG.equals(type) && payload.hasNonNull("content") && payload.get("content").hasNonNull("message")) {
+            appendToBaseTranscript(room, payload.get("content").get("message").asText(""));
+        }
+    }
+
+    private void appendToBaseTranscript(Room room, String newContent) {
+        if (newContent == null || newContent.isBlank()) {
+            return;
+        }
+        String existing = room.getBaseTranscript();
+        if (existing == null || existing.isBlank()) {
+            room.setBaseTranscript(newContent.trim());
+        }
+        else {
+            room.setBaseTranscript(existing + "\n" + newContent.trim());
+        }
     }
 
     private String extractToken(WebSocketSession session) {
