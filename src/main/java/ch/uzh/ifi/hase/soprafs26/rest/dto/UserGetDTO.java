@@ -58,4 +58,10 @@ public class UserGetDTO {
 	public DisabilityStatus getDisabilityStatus() {return disabilityStatus;}
 
 	public void setDisabilityStatus(DisabilityStatus disabilityStatus) {this.disabilityStatus = disabilityStatus;}
+
+	private int friendCount;
+
+	public int getFriendCount() {return friendCount;}
+
+	public void setFriendCount(int friendCount) {this.friendCount = friendCount;}
 }
