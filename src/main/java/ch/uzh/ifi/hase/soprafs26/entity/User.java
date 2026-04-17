@@ -56,6 +56,8 @@ public class User implements Serializable {
     @Column(nullable = false)
     private LocalDateTime creationDate;
 
+    private Long roomId;
+
     @ElementCollection
     @CollectionTable(name = "user_sessions", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "session_id")
@@ -171,4 +173,8 @@ public class User implements Serializable {
     public void setFriends(List<Long> friends) {
         this.friends = friends;
     }
+
+    public Long getRoomId() {return roomId;}
+
+    public void setRoomId(Long roomId) {this.roomId = roomId;}
 }

@@ -20,6 +20,12 @@ public class Room {
 
     private String baseNote;
 
+    private boolean isPrivate = false;
+
+    private Long creatorId;
+
+    private Long invitedUserId;
+
 
     public static Room createRoom(long id,String name,String description) {
         Room room = new Room();
@@ -29,6 +35,19 @@ public class Room {
         room.setRoomStatus(RoomStatus.EMPTY);
         room.setBaseTranscript("");
         room.setBaseNote("");
+        return room;
+    }
+
+    public static Room createPrivateRoom(long id, Long creatorId, String name, String description) {
+        Room room = new Room();
+        room.setId(id);
+        room.setName(name);
+        room.setDescription(description);
+        room.setRoomStatus(RoomStatus.EMPTY);
+        room.setBaseTranscript("");
+        room.setBaseNote("");
+        room.setPrivate(true);
+        room.setCreatorId(creatorId);
         return room;
     }
 
@@ -94,4 +113,16 @@ public class Room {
     public void setBaseNote(String baseNote) {
         this.baseNote = baseNote;
     }
+
+    public boolean isPrivate() { return isPrivate; }
+
+    public void setPrivate(boolean isPrivate) { this.isPrivate = isPrivate; }
+
+    public Long getCreatorId() { return creatorId; }
+
+    public void setCreatorId(Long creatorId) { this.creatorId = creatorId; }
+
+    public Long getInvitedUserId() { return invitedUserId; }
+
+    public void setInvitedUserId(Long invitedUserId) { this.invitedUserId = invitedUserId; }
 }
