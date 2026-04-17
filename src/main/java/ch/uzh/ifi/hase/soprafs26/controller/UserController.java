@@ -65,7 +65,9 @@ public class UserController {
 
         // convert each user to the API representation
         for (User user : users) {
-            userGetDTOs.add(DTOMapper.INSTANCE.convertEntityToUserGetDTO(user));
+            UserGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+            dto.setFriendCount(user.getFriends().size());
+            userGetDTOs.add(dto);
         }
         return userGetDTOs;
     }
@@ -79,7 +81,9 @@ public class UserController {
         if (userToken == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
         }
-        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+        UserGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+        dto.setFriendCount(user.getFriends().size());
+        return dto;
     }
 
     @GetMapping("/users/{id}/documents")
@@ -208,7 +212,59 @@ public class UserController {
 		userRepository.save(user);
 	}
 
-	@PostMapping("users/logout")
+	@PostMapping("/users/{id}/friend-request")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void sendFriendRequest(@PathVariable Long id, @RequestHeader("token") String token) {
+		User sender = userRepository.findByToken(token);
+		if (sender == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+		userService.sendFriendRequest(sender.getId(), id);
+	}
+
+	@PutMapping("/users/{id}/friend-request/accept")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void acceptFriendRequest(@PathVariable Long id, @RequestBody java.util.Map<String, Long> body, @RequestHeader("token") String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+		if (!user.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only accept your own friend requests");
+		Long senderId = body.get("senderId");
+		if (senderId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "senderId is required");
+		userService.acceptFriendRequest(id, senderId);
+	}
+
+	@GetMapping("/users/{id}/friends")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<UserGetDTO> getFriends(@PathVariable Long id, @RequestHeader("token") String token) {
+		User userToken = userRepository.findByToken(token);
+		if (userToken == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+
+		List<UserGetDTO> result = new ArrayList<>();
+		for (User friend : userService.getFriends(id)) {
+			UserGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserGetDTO(friend);
+			dto.setFriendCount(friend.getFriends().size());
+			result.add(dto);
+		}
+		return result;
+	}
+
+	@GetMapping("/users/{id}/friend-requests")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<UserGetDTO> getPendingRequests(@PathVariable Long id, @RequestHeader("token") String token) {
+		User userToken = userRepository.findByToken(token);
+		if (userToken == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+		if (!userToken.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only see your own requests");
+
+		List<UserGetDTO> result = new ArrayList<>();
+		for (User requester : userService.getPendingRequests(id)) {
+			UserGetDTO dto = DTOMapper.INSTANCE.convertEntityToUserGetDTO(requester);
+			dto.setFriendCount(requester.getFriends().size());
+			result.add(dto);
+		}
+		return result;
+	}
+
+	@PutMapping("users/logout")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@ResponseBody
 	public void logout(@RequestHeader(value = "token", required = false) String token, @RequestParam(value = "token", required = false) String tokenParam) {
