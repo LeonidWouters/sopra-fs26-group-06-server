@@ -112,6 +112,29 @@ public class NoteControllerTest {
             }
 
     @Test
+    public void getNoteById_validInput_returnsNote() throws Exception {
+        User user = new User();
+        user.setToken("1");
+        given(userRepository.findByToken("1")).willReturn(user);
+
+        Note note = new Note();
+        note.setId(1L);
+        note.setContent("test single note");
+        note.setSessionId(UUID.randomUUID());
+
+        given(noteService.getNoteById(1L)).willReturn(note);
+
+        MockHttpServletRequestBuilder getRequest = get("/notes/1")
+                .header("token", "1")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(note.getId().intValue())))
+                .andExpect(jsonPath("$.content", is(note.getContent())));
+    }
+
+    @Test
     public void getNotesBySession_validToken_returnsNotes() throws Exception {
         UUID sessionId = UUID.randomUUID();
 

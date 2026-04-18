@@ -65,4 +65,30 @@ public class TranscriptServiceTest {
 
         assertThrows(ResponseStatusException.class, () -> transcriptService.getTranscriptById(999L));
     }
+
+    @Test
+    public void getTranscriptById_success() {
+        Mockito.when(transcriptRepository.findById(1L)).thenReturn(Optional.of(testTranscript));
+        Transcript found = transcriptService.getTranscriptById(1L);
+        assertEquals(testTranscript.getId(), found.getId());
+        assertEquals(testTranscript.getContent(), found.getContent());
+    }
+
+    @Test
+    public void getTranscriptsBySessionIds_nullOrEmptyInput_returnsEmptyList() {
+        java.util.List<Transcript> nullTranscripts = transcriptService.getTranscriptsBySessionIds(null);
+        assertEquals(0, nullTranscripts.size());
+
+        java.util.List<Transcript> emptyTranscripts = transcriptService.getTranscriptsBySessionIds(Collections.emptyList());
+        assertEquals(0, emptyTranscripts.size());
+
+        Mockito.verify(transcriptRepository, Mockito.never()).findBySessionIdIn(Mockito.any());
+    }
+
+    @Test
+    public void deleteTranscript_transcriptNotFound_throwsException() {
+        Mockito.when(transcriptRepository.findById(999L)).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> transcriptService.deleteTranscript(999L));
+        Mockito.verify(transcriptRepository, Mockito.never()).delete(Mockito.any());
+    }
 }

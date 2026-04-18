@@ -77,11 +77,60 @@ public class UserServiceTest {
 
 		// when -> setup additional mocks for UserRepository
 		Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
-		Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
-		// then -> attempt to create second user with same user -> check that an error
-		// is thrown
-		assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
-	}
+                // then -> attempt to create second user with same user -> check that an error
+                // is thrown
+                assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+        }
 
+        @Test
+        public void checkUser_validCredentials_returnsUser() {
+                Mockito.when(userRepository.findByUsername(testUser.getUsername())).thenReturn(testUser);
+                User result = userService.checkUser(testUser);
+                assertEquals(testUser.getId(), result.getId());
+                assertEquals(testUser.getUsername(), result.getUsername());
+        }
+
+        @Test
+        public void getByID_nonExistingUser_throwsException() {
+                Mockito.when(userRepository.findByid(999L)).thenReturn(null);
+                assertThrows(ResponseStatusException.class, () -> userService.getByID(999L));
+        }
+
+        @Test
+        public void token_auth_validToken_returnsUser() {
+                testUser.setToken("1234");
+                Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+                boolean result = userService.token_auth("1234", testUser.getId());
+                assertTrue(result);
+        }
+
+        @Test
+        public void sendFriendRequest_alreadyFriends_throwsException() {
+                User sender = new User();
+                sender.setId(2L);
+                testUser.setId(3L);
+                
+                testUser.setFriends(new java.util.ArrayList<>());
+                testUser.getFriends().add(sender.getId());
+
+                Mockito.when(userRepository.findByid(sender.getId())).thenReturn(sender);
+                Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+                assertThrows(ResponseStatusException.class, () -> userService.sendFriendRequest(sender.getId(), testUser.getId()));
+        }
+
+        @Test
+        public void acceptFriendRequest_noPendingRequest_throwsException() {
+                User sender = new User();
+                sender.setId(2L);
+                testUser.setId(3L);
+                
+                testUser.setPendingFriendRequests(new java.util.ArrayList<>());
+
+                Mockito.when(userRepository.findByid(sender.getId())).thenReturn(sender);
+                Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+                assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(testUser.getId(), sender.getId()));
+        }
 }

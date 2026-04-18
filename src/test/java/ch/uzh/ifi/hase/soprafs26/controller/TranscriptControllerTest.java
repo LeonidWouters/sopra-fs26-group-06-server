@@ -135,6 +135,29 @@ public class TranscriptControllerTest {
     }
 
     @Test
+    public void getTranscriptById_validInput_returnsTranscript() throws Exception {
+        User user = new User();
+        user.setToken("1");
+        given(userRepository.findByToken("1")).willReturn(user);
+
+        Transcript transcript = new Transcript();
+        transcript.setId(1L);
+        transcript.setContent("test single transcript");
+        transcript.setSessionId(UUID.randomUUID());
+
+        given(transcriptService.getTranscriptById(1L)).willReturn(transcript);
+
+        MockHttpServletRequestBuilder getRequest = get("/transcripts/1")
+                .header("token", "1")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(transcript.getId().intValue())))
+                .andExpect(jsonPath("$.content", is(transcript.getContent())));
+    }
+
+    @Test
     public void deleteTranscript_validInput_noContent() throws Exception {
         User user = new User();
         user.setToken("1");
