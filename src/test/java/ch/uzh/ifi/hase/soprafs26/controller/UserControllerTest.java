@@ -319,7 +319,7 @@ public class UserControllerTest {
         given(userRepository.findByToken("1")).willReturn(user);
         given(roomService.getRoomById("1")).willReturn(room);
 
-        MockHttpServletRequestBuilder logoutRequest = post("/users/logout")
+        MockHttpServletRequestBuilder logoutRequest = put("/users/logout")
                 .contentType(MediaType.APPLICATION_JSON)
                 .param("token", "1");
 
@@ -354,7 +354,7 @@ public class UserControllerTest {
         given(userRepository.findByToken("1")).willReturn(user);
         given(roomService.getRoomById("1")).willReturn(room);
 
-        MockHttpServletRequestBuilder logoutRequest = post("/users/logout")
+        MockHttpServletRequestBuilder logoutRequest = put("/users/logout")
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("token", "1");
 
