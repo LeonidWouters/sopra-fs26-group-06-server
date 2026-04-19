@@ -56,8 +56,6 @@ public class User implements Serializable {
     @Column(nullable = false)
     private LocalDateTime creationDate;
 
-    private Long roomId;
-
     @ElementCollection
     @CollectionTable(name = "user_sessions", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "session_id")
