@@ -73,6 +73,9 @@ public class User implements Serializable {
     @Column(name = "friend_id")
     private List<Long> friends = new ArrayList<>();
 
+    @Column
+    private Long roomId;
+
     @PrePersist
     protected void onCreate() {
         setCreationDate(LocalDateTime.now());
@@ -174,7 +177,11 @@ public class User implements Serializable {
         this.friends = friends;
     }
 
-    public Long getRoomId() {return roomId;}
+    public Long getRoomId() {
+        return roomId;
+    }
 
-    public void setRoomId(Long roomId) {this.roomId = roomId;}
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
 }
