@@ -7,6 +7,9 @@ import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPutPasswordDTO;
+import ch.uzh.ifi.hase.soprafs26.room.Room;
+import ch.uzh.ifi.hase.soprafs26.room.RoomService;
+import ch.uzh.ifi.hase.soprafs26.room.RoomStatus;
 import ch.uzh.ifi.hase.soprafs26.service.NoteService;
 import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
@@ -32,6 +35,7 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,6 +66,9 @@ public class UserControllerTest {
 
     @MockitoBean
     private UserRepository userRepository;
+
+        @MockitoBean
+        private RoomService roomService;
 
     @Test
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
@@ -292,6 +299,76 @@ public class UserControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void logout_withTokenParam_removesUserFromFullRoomAndSetsOffline() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setToken("1");
+        user.setStatus(UserStatus.ONLINE);
+        user.setRoomId(1L);
+
+        Room room = Room.createRoom(1L, "room1", "desc");
+        room.setRoomStatus(RoomStatus.FULL);
+        room.setCallerID(1L);
+        room.setCalleeID(2L);
+        room.setBaseTranscript("abc");
+        room.setBaseNote("xyz");
+
+        given(userRepository.findByToken("1")).willReturn(user);
+        given(roomService.getRoomById("1")).willReturn(room);
+
+        MockHttpServletRequestBuilder logoutRequest = put("/users/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "1");
+
+        mockMvc.perform(logoutRequest)
+                .andExpect(status().isNoContent());
+
+        verify(userRepository).save(user);
+        verify(noteService).createNote(Mockito.any(Note.class));
+        verify(transcriptService).createTranscript(Mockito.any(Transcript.class));
+        org.junit.jupiter.api.Assertions.assertNull(user.getRoomId());
+        org.junit.jupiter.api.Assertions.assertEquals(UserStatus.OFFLINE, user.getStatus());
+        org.junit.jupiter.api.Assertions.assertNotEquals("1", user.getToken());
+        org.junit.jupiter.api.Assertions.assertNull(room.getCallerID());
+        org.junit.jupiter.api.Assertions.assertEquals(2L, room.getCalleeID());
+        org.junit.jupiter.api.Assertions.assertEquals(RoomStatus.JOINABLE, room.getRoomStatus());
+    }
+
+    @Test
+    public void logout_whenLastParticipantLeaves_setsRoomEmptyAndClearsBuffers() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setToken("1");
+        user.setStatus(UserStatus.ONLINE);
+        user.setRoomId(1L);
+
+        Room room = Room.createRoom(1L, "room1", "desc");
+        room.setRoomStatus(RoomStatus.JOINABLE);
+        room.setCallerID(1L);
+        room.setBaseTranscript("abc");
+        room.setBaseNote("xyz");
+
+        given(userRepository.findByToken("1")).willReturn(user);
+        given(roomService.getRoomById("1")).willReturn(room);
+
+        MockHttpServletRequestBuilder logoutRequest = put("/users/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1");
+
+        mockMvc.perform(logoutRequest)
+                .andExpect(status().isNoContent());
+
+        verify(userRepository).save(user);
+        verify(noteService).createNote(Mockito.any(Note.class));
+        verify(transcriptService).createTranscript(Mockito.any(Transcript.class));
+        org.junit.jupiter.api.Assertions.assertNull(room.getCallerID());
+        org.junit.jupiter.api.Assertions.assertNull(room.getCalleeID());
+        org.junit.jupiter.api.Assertions.assertEquals(RoomStatus.EMPTY, room.getRoomStatus());
+        org.junit.jupiter.api.Assertions.assertEquals("", room.getBaseTranscript());
+        org.junit.jupiter.api.Assertions.assertEquals("", room.getBaseNote());
     }
 
     private String asJsonString(final Object object) {

@@ -68,6 +68,32 @@ public class NoteServiceTest {
     }
 
     @Test
+    public void getNoteById_success() {
+        Mockito.when(noteRepository.findById(1L)).thenReturn(Optional.of(testNote));
+        Note foundNote = noteService.getNoteById(1L);
+        assertEquals(testNote.getId(), foundNote.getId());
+        assertEquals(testNote.getContent(), foundNote.getContent());
+    }
+
+    @Test
+    public void deleteNote_noteNotFound_throwsException() {
+        Mockito.when(noteRepository.findById(999L)).thenReturn(Optional.empty());
+        assertThrows(ResponseStatusException.class, () -> noteService.deleteNote(999L));
+        Mockito.verify(noteRepository, Mockito.never()).delete(Mockito.any());
+    }
+
+    @Test
+    public void getNotesBySessionIds_nullOrEmptyInput_returnsEmptyList() {
+        java.util.List<Note> nullNotes = noteService.getNotesBySessionIds(null);
+        assertEquals(0, nullNotes.size());
+        
+        java.util.List<Note> emptyNotes = noteService.getNotesBySessionIds(Collections.emptyList());
+        assertEquals(0, emptyNotes.size());
+        
+        Mockito.verify(noteRepository, Mockito.never()).findBySessionIdIn(Mockito.any());
+    }
+
+    @Test
     public void updateNote_success() {
         Mockito.when(noteRepository.findById(1L)).thenReturn(Optional.of(testNote));
 

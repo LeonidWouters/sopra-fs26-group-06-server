@@ -74,6 +74,39 @@ public class TranscriptControllerTest {
             Mockito.verify(userRepository).save(user);
     }
 
+            @Test
+            public void createTranscript_withTokenQueryParam_transcriptCreated() throws Exception {
+            UUID sessionId = UUID.randomUUID();
+
+            User user = new User();
+            user.setToken("1");
+            given(userRepository.findByToken("1")).willReturn(user);
+
+            Transcript transcript = new Transcript();
+            transcript.setId(2L);
+            transcript.setContent("transcript content query");
+            transcript.setSessionId(sessionId);
+            transcript.setCreatedAt(LocalDateTime.now().withNano(0));
+
+            TranscriptPostDTO transcriptPostDTO = new TranscriptPostDTO();
+            transcriptPostDTO.setContent("transcript content query");
+            transcriptPostDTO.setSessionId(sessionId);
+
+            given(transcriptService.createTranscript(Mockito.any())).willReturn(transcript);
+
+            MockHttpServletRequestBuilder postRequest = post("/transcripts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .param("token", "1")
+                .content(asJsonString(transcriptPostDTO));
+
+            mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(transcript.getId().intValue())))
+                .andExpect(jsonPath("$.content", is(transcript.getContent())));
+
+            Mockito.verify(userRepository).save(user);
+            }
+
     @Test
     public void getTranscriptsBySession_validToken_returnsTranscripts() throws Exception {
         UUID sessionId = UUID.randomUUID();
@@ -99,6 +132,29 @@ public class TranscriptControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].content", is(transcript.getContent())));
+    }
+
+    @Test
+    public void getTranscriptById_validInput_returnsTranscript() throws Exception {
+        User user = new User();
+        user.setToken("1");
+        given(userRepository.findByToken("1")).willReturn(user);
+
+        Transcript transcript = new Transcript();
+        transcript.setId(1L);
+        transcript.setContent("test single transcript");
+        transcript.setSessionId(UUID.randomUUID());
+
+        given(transcriptService.getTranscriptById(1L)).willReturn(transcript);
+
+        MockHttpServletRequestBuilder getRequest = get("/transcripts/1")
+                .header("token", "1")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(transcript.getId().intValue())))
+                .andExpect(jsonPath("$.content", is(transcript.getContent())));
     }
 
     @Test

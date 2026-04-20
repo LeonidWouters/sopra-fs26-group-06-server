@@ -6,6 +6,8 @@ import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import java.util.List;
 
@@ -32,7 +34,11 @@ public class RoomController {
         if(roomService.getAllRooms() == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Rooms present in database");
         }
-        return roomService.getAllRooms();
+        return roomService.getAllRooms().stream()
+                .filter(room -> !room.isPrivate() ||
+                        userToken.getId().equals(room.getCreatorId()) ||
+                        userToken.getId().equals(room.getInvitedUserId()))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/rooms/{id}")
@@ -62,6 +68,8 @@ public class RoomController {
         if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
             room.setRoomStatus(RoomStatus.JOINABLE);
             room.setCallerID(userToken.getId());
+            userToken.setRoomId(room.getId());
+            UserRepository.save(userToken);
             return room;
         }
         if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
@@ -70,6 +78,8 @@ public class RoomController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "User cannot be caller and callee");
             }
             room.setCalleeID(userToken.getId());
+            userToken.setRoomId(room.getId());
+            UserRepository.save(userToken);
             return room;
         }
         if(room.getRoomStatus().equals(RoomStatus.FULL)){
@@ -96,6 +106,8 @@ public class RoomController {
             if (userToken.getId().equals(room.getCalleeID())){
                 room.setCalleeID(null);
             }
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
             room.setBaseTranscript("");
             room.setBaseNote("");
         }
@@ -107,11 +119,44 @@ public class RoomController {
             if (userToken.getId().equals(room.getCalleeID())){
                 room.setCalleeID(null);
             }
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
             room.setBaseTranscript("");
             room.setBaseNote("");
         }
-
+        if (room.getRoomStatus() == RoomStatus.EMPTY && room.isPrivate()) {
+            roomService.removeRoom(Long.toString(id));
+        }
         return room;
 
+    }
+
+    @PostMapping("/rooms/private")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public Room createPrivateRoom(@RequestBody Map<String, String> body, @RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+        String name = body.get("name");
+        String description = body.get("description");
+        return roomService.createPrivateRoom(userToken.getId(), name, description);
+    }
+
+    @PostMapping("/rooms/{id}/invite")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void inviteToRoom(@PathVariable Long id, @RequestBody Map<String, String> body, @RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+        String usernameToInvite = body.get("username");
+        User invitedUser = UserRepository.findByUsername(usernameToInvite);
+        if (invitedUser == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User to invite not found");
+        }
+        roomService.inviteUser(Long.toString(id), userToken, invitedUser);
     }
 }
