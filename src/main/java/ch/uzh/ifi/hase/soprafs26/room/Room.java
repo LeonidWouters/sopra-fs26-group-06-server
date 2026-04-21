@@ -114,7 +114,7 @@ public class Room {
         this.baseNote = baseNote;
     }
 
-    public boolean isPrivate() { return isPrivate; }
+    public boolean getIsPrivate() { return isPrivate; }
 
     public void setPrivate(boolean isPrivate) { this.isPrivate = isPrivate; }
 
