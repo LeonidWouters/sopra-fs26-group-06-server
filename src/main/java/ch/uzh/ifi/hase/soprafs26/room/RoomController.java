@@ -35,7 +35,7 @@ public class RoomController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No Rooms present in database");
         }
         return roomService.getAllRooms().stream()
-                .filter(room -> !room.isPrivate() ||
+                .filter(room -> !room.getIsPrivate() ||
                         userToken.getId().equals(room.getCreatorId()) ||
                         userToken.getId().equals(room.getInvitedUserId()))
                 .collect(Collectors.toList());
@@ -124,7 +124,7 @@ public class RoomController {
             room.setBaseTranscript("");
             room.setBaseNote("");
         }
-        if (room.getRoomStatus() == RoomStatus.EMPTY && room.isPrivate()) {
+        if (room.getRoomStatus() == RoomStatus.EMPTY && room.getIsPrivate()) {
             roomService.removeRoom(Long.toString(id));
         }
         return room;

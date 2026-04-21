@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class UserGetDTO {
 
@@ -14,6 +15,7 @@ public class UserGetDTO {
 	private String bio;
 	private  LocalDateTime creationDate;
 	private DisabilityStatus disabilityStatus;
+    private List<Long> friends;
 
 	public Long getId() {
 		return id;
@@ -64,4 +66,8 @@ public class UserGetDTO {
 	public int getFriendCount() {return friendCount;}
 
 	public void setFriendCount(int friendCount) {this.friendCount = friendCount;}
+
+    public List<Long> getFriends() {return friends;}
+
+    public void setFriends(List<Long> friends) {this.friends = friends;}
 }

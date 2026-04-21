@@ -42,7 +42,7 @@ public class RoomService {
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
-        if (!room.isPrivate()) {
+        if (!room.getIsPrivate()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room is not private");
         }
         if (!inviter.getFriends().contains(invited.getId())) {
