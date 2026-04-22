@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs26.constant.DisabilityStatus;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserGetDTO {
@@ -15,7 +16,6 @@ public class UserGetDTO {
 	private String bio;
 	private  LocalDateTime creationDate;
 	private DisabilityStatus disabilityStatus;
-    private List<Long> friends;
 
 	public Long getId() {
 		return id;
@@ -67,7 +67,9 @@ public class UserGetDTO {
 
 	public void setFriendCount(int friendCount) {this.friendCount = friendCount;}
 
-    public List<Long> getFriends() {return friends;}
+	private List<Long> pendingFriendRequests = new ArrayList<>();
 
-    public void setFriends(List<Long> friends) {this.friends = friends;}
+	public List<Long> getPendingFriendRequests() {return pendingFriendRequests;}
+
+	public void setPendingFriendRequests(List<Long> list) {this.pendingFriendRequests = list;}
 }
