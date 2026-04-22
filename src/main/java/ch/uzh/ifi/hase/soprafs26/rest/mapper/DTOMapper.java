@@ -44,6 +44,7 @@ public interface DTOMapper {
 	@Mapping(source = "disabilityStatus", target = "disabilityStatus")
 	@Mapping(source = "pendingFriendRequests", target = "pendingFriendRequests")
 	@Mapping(target = "friendCount", ignore = true)
+    @Mapping(source = "friends", target = "friends")
 	UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(target = "id", source = "id")
