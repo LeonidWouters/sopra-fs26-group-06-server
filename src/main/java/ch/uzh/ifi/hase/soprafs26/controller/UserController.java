@@ -231,6 +231,17 @@ public class UserController {
 		userService.acceptFriendRequest(id, senderId);
 	}
 
+	@PutMapping("/users/{id}/friend-request/decline")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void declineFriendRequest(@PathVariable Long id, @RequestBody java.util.Map<String, Long> body, @RequestHeader("token") String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+		if (!user.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only decline your own friend requests");
+		Long senderId = body.get("senderId");
+		if (senderId == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "senderId is required");
+		userService.declineFriendRequest(id, senderId);
+	}
+
 	@GetMapping("/users/{id}/friends")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody

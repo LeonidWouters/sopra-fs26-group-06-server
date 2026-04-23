@@ -17,10 +17,23 @@ public class RoomService {
 
     @PostConstruct
     public void initRooms() {
-        for (int i = 1; i <= NUMBER_OF_ROOMS; i++) {
-            Room room = Room.createRoom(Long.valueOf(i),"room" + String.valueOf(i),"Some example Text");
-            rooms.put(String.valueOf(i), room);
-        }
+        Room room1 = Room.createRoom(1L, "Main Lobby", "Welcome to the main lobby! Hang out and chat.");
+        rooms.put("1", room1);
+
+        Room room2 = Room.createRoom(2L, "Gaming Lounge", "Looking for a group? Discuss your favorite games here.");
+        rooms.put("2", room2);
+
+        Room room3 = Room.createRoom(3L, "Study Room", "Quiet place for studying and sharing notes.");
+        rooms.put("3", room3);
+
+        Room room4 = Room.createRoom(4L, "Tech Talk", "Discuss programming, hardware, and the latest tech news.");
+        rooms.put("4", room4);
+
+        Room room5 = Room.createRoom(5L, "Movie Club", "Watch parties and movie discussions.");
+        rooms.put("5", room5);
+
+        Room room6 = Room.createRoom(6L, "Random Chat", "Talk about whatever is on your mind.");
+        rooms.put("6", room6);
     }
     public List<Room> getAllRooms() {
         return List.copyOf(rooms.values());
@@ -42,7 +55,7 @@ public class RoomService {
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
-        if (!room.isPrivate()) {
+        if (!room.getIsPrivate()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Room is not private");
         }
         if (!inviter.getFriends().contains(invited.getId())) {

@@ -179,6 +179,16 @@ public class UserService {
         return friendList;
     }
 
+    public void declineFriendRequest(Long userId, Long senderId) {
+        User user = userRepository.findByid(userId);
+        if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        if (!user.getPendingFriendRequests().contains(senderId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No pending request from this user");
+        }
+        user.getPendingFriendRequests().remove(Long.valueOf(senderId));
+        userRepository.save(user);
+    }
+
     public List<User> getPendingRequests(Long userId) {
         User user = userRepository.findByid(userId);
         if (user == null) {
