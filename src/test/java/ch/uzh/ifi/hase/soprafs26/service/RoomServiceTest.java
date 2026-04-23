@@ -28,7 +28,7 @@ public class RoomServiceTest {
 
     @Test
     public void createRoom_isValid() throws Exception {
-        Room room = Room.createRoom(1L, "room1", "Some example Text");
+        Room room = Room.createRoom(1L, "Main Lobby", "Welcome to the main lobby! Hang out and chat.");
         Room createdRoom = roomService.getRoomById("1");
         assertNotNull(createdRoom);
         assertEquals(room.getId(), createdRoom.getId());
@@ -55,8 +55,8 @@ public class RoomServiceTest {
         Room retrievedRoom = roomService.getRoomById("1");
         assertNotNull(retrievedRoom);
         assertEquals(1L, retrievedRoom.getId());
-        assertEquals("room1", retrievedRoom.getName());
-        assertEquals("Some example Text", retrievedRoom.getDescription());
+        assertEquals("Main Lobby", retrievedRoom.getName());
+        assertEquals("Welcome to the main lobby! Hang out and chat.", retrievedRoom.getDescription());
         assertEquals(RoomStatus.EMPTY, retrievedRoom.getRoomStatus());
         assertEquals("", retrievedRoom.getBaseTranscript());
         assertEquals("", retrievedRoom.getBaseNote());
