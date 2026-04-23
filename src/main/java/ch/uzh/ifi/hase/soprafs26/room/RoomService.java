@@ -20,13 +20,13 @@ public class RoomService {
         Room room1 = Room.createRoom(1L, "Main Lobby", "Welcome to the main lobby! Hang out and chat.");
         rooms.put("1", room1);
 
-        Room room2 = Room.createRoom(2L, "Gaming Lounge", "Looking for a group? Discuss your favorite games here.");
+        Room room2 = Room.createRoom(2L, "Gaming Lounge", "Looking for a group? Discuss favorite games here.");
         rooms.put("2", room2);
 
         Room room3 = Room.createRoom(3L, "Study Room", "Quiet place for studying and sharing notes.");
         rooms.put("3", room3);
 
-        Room room4 = Room.createRoom(4L, "Tech Talk", "Discuss programming, hardware, and the latest tech news.");
+        Room room4 = Room.createRoom(4L, "Tech Talk", "Discuss programming and the latest tech news.");
         rooms.put("4", room4);
 
         Room room5 = Room.createRoom(5L, "Movie Club", "Watch parties and movie discussions.");
