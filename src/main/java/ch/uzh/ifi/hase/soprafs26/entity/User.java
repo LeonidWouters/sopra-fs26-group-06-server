@@ -35,10 +35,10 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false, unique = true)
@@ -47,7 +47,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String bio;
 
     @Column(nullable = false)
