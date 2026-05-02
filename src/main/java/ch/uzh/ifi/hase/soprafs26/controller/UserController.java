@@ -242,6 +242,15 @@ public class UserController {
 		userService.declineFriendRequest(id, senderId);
 	}
 
+	@DeleteMapping("/users/{id}/friends/{friendId}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void removeFriend(@PathVariable Long id, @PathVariable Long friendId, @RequestHeader("token") String token) {
+		User user = userRepository.findByToken(token);
+		if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+		if (!user.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only remove your own friends");
+		userService.removeFriend(id, friendId);
+	}
+
 	@GetMapping("/users/{id}/friends")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
