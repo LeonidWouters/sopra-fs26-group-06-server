@@ -189,6 +189,21 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void removeFriend(Long userId, Long friendId) {
+        User user = userRepository.findByid(userId);
+        User friend = userRepository.findByid(friendId);
+        if (user == null || friend == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+        if (!user.getFriends().contains(friendId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "This user is not your friend");
+        }
+        user.getFriends().remove(friendId);
+        friend.getFriends().remove(userId);
+        userRepository.save(user);
+        userRepository.save(friend);
+    }
+
     public List<User> getPendingRequests(Long userId) {
         User user = userRepository.findByid(userId);
         if (user == null) {
