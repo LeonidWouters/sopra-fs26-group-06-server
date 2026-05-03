@@ -284,6 +284,19 @@ public class UserController {
 		return result;
 	}
 
+    @PutMapping("users/{id}/profile-picture")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateProfilePicture(@PathVariable Long id, @RequestBody java.util.Map<String, String> body, @RequestHeader("token") String token) {
+        User user = userRepository.findByToken(token);
+        if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        if (!user.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Forbidden");
+        String pic = body.get("profilePicture");
+        if (pic != null && pic.length() > 3_000_000)
+            throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "Max 2MB");
+        user.setProfilePicture(pic);
+        userRepository.save(user);
+    }
+
 	@PutMapping("users/logout")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@ResponseBody

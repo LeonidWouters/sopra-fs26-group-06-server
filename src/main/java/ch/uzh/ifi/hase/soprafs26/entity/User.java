@@ -79,6 +79,10 @@ public class User implements Serializable {
         setCreationDate(LocalDateTime.now());
     }
 
+    @Column(columnDefinition = "TEXT")
+    private String profilePicture;
+
+
     public Long getId() {
         return id;
     }
@@ -163,9 +167,7 @@ public class User implements Serializable {
         return pendingFriendRequests;
     }
 
-    public void setPendingFriendRequests(List<Long> pendingFriendRequests) {
-        this.pendingFriendRequests = pendingFriendRequests;
-    }
+    public void setPendingFriendRequests(List<Long> pendingFriendRequests) {this.pendingFriendRequests = pendingFriendRequests;}
 
     public List<Long> getFriends() {
         return friends;
@@ -182,4 +184,9 @@ public class User implements Serializable {
     public void setRoomId(Long roomId) {
         this.roomId = roomId;
     }
+
+    public String getProfilePicture() { return profilePicture; }
+
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+
 }
