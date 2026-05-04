@@ -59,8 +59,11 @@ public class TranscriptController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public TranscriptGetDTO getTranscriptById(@PathVariable long id, @RequestHeader("token") String token) {
-        validateToken(token);
+        User user = validateToken(token);
         Transcript transcript = transcriptService.getTranscriptById(id);
+        if (!user.getSessions().contains(transcript.getSessionId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
         return DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(transcript);
     }
 
