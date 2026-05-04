@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 @Table(name = "MEETING")
 public class Meeting implements Serializable {
 
-    private final Long serializedVersionUID = 1L;
+    private static final Long serializedVersionUID = 1L;
 
     @Id
     @GeneratedValue
     private Long id;
 
     @Column(nullable = false)
-    private String titel;
+    private String title;
 
     @Column(nullable = false)
     private String description;
@@ -33,6 +33,63 @@ public class Meeting implements Serializable {
     @Column(nullable = false)
     private Long invitedUser;
 
+    public Long getSerializedVersionUID() {
+        return serializedVersionUID;
+    }
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public Long getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Long owner) {
+        this.owner = owner;
+    }
+
+    public Long getInvitedUser() {
+        return invitedUser;
+    }
+
+    public void setInvitedUser(Long invitedUser) {
+        this.invitedUser = invitedUser;
+    }
 }

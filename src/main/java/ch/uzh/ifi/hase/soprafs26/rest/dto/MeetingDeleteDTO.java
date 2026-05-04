@@ -1,13 +1,13 @@
 package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
 public class MeetingDeleteDTO {
-    private Long ID;
+    private Long id;
 
     public Long getID() {
-        return ID;
+        return id;
     }
 
-    public void setID(Long ID) {
-        this.ID = ID;
+    public void setID(Long id) {
+        this.id = id;
     }
 }

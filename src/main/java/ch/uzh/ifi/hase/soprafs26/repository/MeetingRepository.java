@@ -12,4 +12,6 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long> {
     List<Meeting> findByOwner(Long ownerId);
 
     List<Meeting> findByInvitedUser(Long invitedUserId);
+
+    Meeting findByid(long id);
 }

@@ -3,19 +3,19 @@ package ch.uzh.ifi.hase.soprafs26.rest.dto;
 import java.time.LocalDateTime;
 
 public class MeetingPutDTO {
-    private Long ID;
+    private Long id;
     private String title;
     private String description;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Long invitedUser;
 
-    public Long getID() {
-        return ID;
+    public Long getId() {
+        return id;
     }
 
-    public void setID(Long ID) {
-        this.ID = ID;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
