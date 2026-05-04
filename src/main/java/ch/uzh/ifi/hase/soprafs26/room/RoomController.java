@@ -53,6 +53,12 @@ public class RoomController {
         if(room == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
+        String userId = String.valueOf(userToken.getId());
+        boolean isCreator = userId.equals(room.getCreatorId());
+        boolean isInvitedUser = userId.equals(room.getInvitedUserId());
+        if (room.getIsPrivate() && !(isCreator || isInvitedUser)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied to private room");
+        }
         return room;
     }
     @PutMapping("/rooms/{id}/join")
