@@ -16,6 +16,7 @@ public class UserGetDTO {
 	private String bio;
 	private  LocalDateTime creationDate;
 	private DisabilityStatus disabilityStatus;
+    private String profilePicture;
 
 	public Long getId() {
 		return id;
@@ -72,4 +73,8 @@ public class UserGetDTO {
 	public List<Long> getPendingFriendRequests() {return pendingFriendRequests;}
 
 	public void setPendingFriendRequests(List<Long> list) {this.pendingFriendRequests = list;}
+
+    public String getProfilePicture() { return profilePicture; }
+
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
 }

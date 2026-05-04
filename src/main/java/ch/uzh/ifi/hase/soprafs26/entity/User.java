@@ -35,10 +35,10 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String name;
 
     @Column(nullable = false, unique = true)
@@ -47,7 +47,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String bio;
 
     @Column(nullable = false)
@@ -78,6 +78,10 @@ public class User implements Serializable {
     protected void onCreate() {
         setCreationDate(LocalDateTime.now());
     }
+
+    @Column(columnDefinition = "TEXT")
+    private String profilePicture;
+
 
     public Long getId() {
         return id;
@@ -163,9 +167,7 @@ public class User implements Serializable {
         return pendingFriendRequests;
     }
 
-    public void setPendingFriendRequests(List<Long> pendingFriendRequests) {
-        this.pendingFriendRequests = pendingFriendRequests;
-    }
+    public void setPendingFriendRequests(List<Long> pendingFriendRequests) {this.pendingFriendRequests = pendingFriendRequests;}
 
     public List<Long> getFriends() {
         return friends;
@@ -182,4 +184,9 @@ public class User implements Serializable {
     public void setRoomId(Long roomId) {
         this.roomId = roomId;
     }
+
+    public String getProfilePicture() { return profilePicture; }
+
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+
 }
