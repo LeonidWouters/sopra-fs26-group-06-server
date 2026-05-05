@@ -165,4 +165,18 @@ public class RoomController {
         }
         roomService.inviteUser(Long.toString(id), userToken, invitedUser);
     }
+
+    @PutMapping("/rooms/{id}/heartbeat")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public void receiveHeartbeat(@PathVariable Long id, @RequestHeader("token") String token) {
+        User userToken = UserRepository.findByToken(token);
+        if (userToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        }
+        Room room = roomService.getRoomById(Long.toString(id));
+        if (room == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
+        }
+    }
 }
