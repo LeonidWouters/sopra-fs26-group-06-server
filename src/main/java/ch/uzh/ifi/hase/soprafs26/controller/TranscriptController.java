@@ -67,16 +67,6 @@ public class TranscriptController {
         return DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(transcript);
     }
 
-    // @PutMapping("/transcripts/{id}")
-    // @ResponseStatus(HttpStatus.OK)
-    // @ResponseBody
-    // public TranscriptGetDTO updateTranscript(@PathVariable long id,
-    //                                          @RequestBody TranscriptPutDTO transcriptPutDTO,
-    //                                          @RequestHeader("token") String token) {
-    //     validateToken(token);
-    //     Transcript updatedTranscript = transcriptService.updateTranscript(id, transcriptPutDTO.getContent());
-    //     return DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(updatedTranscript);
-    // }
 
     @DeleteMapping("/transcripts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

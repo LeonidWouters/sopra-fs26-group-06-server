@@ -41,11 +41,6 @@ public class TranscriptService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Transcript not found"));
     }
 
-    // public Transcript updateTranscript(long id, String content) {
-    //     Transcript transcript = getTranscriptById(id);
-    //     transcript.setContent(content);
-    //     return transcriptRepository.save(transcript);
-    // }
 
     public void deleteTranscript(long id) {
         Transcript transcript = getTranscriptById(id);
