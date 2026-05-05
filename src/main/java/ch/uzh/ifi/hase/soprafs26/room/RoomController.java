@@ -167,8 +167,7 @@ public class RoomController {
     }
 
     @PutMapping("/rooms/{id}/heartbeat")
-    @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void receiveHeartbeat(@PathVariable Long id, @RequestHeader("token") String token) {
         User userToken = UserRepository.findByToken(token);
         if (userToken == null) {
