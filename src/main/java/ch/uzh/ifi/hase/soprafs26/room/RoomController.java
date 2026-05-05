@@ -178,5 +178,6 @@ public class RoomController {
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
+        roomService.updateHeartbeat(Long.toString(id), userToken.getId());
     }
 }

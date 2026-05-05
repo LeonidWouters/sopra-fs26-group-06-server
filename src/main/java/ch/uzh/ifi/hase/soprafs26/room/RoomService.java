@@ -5,12 +5,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDateTime;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.scheduling.annotation.Scheduled;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class RoomService {
+    @Autowired
+    private UserRepository userRepository;
+
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     public final int NUMBER_OF_ROOMS = 6;
     private long nextPrivateRoomId = 1000;
@@ -66,6 +74,62 @@ public class RoomService {
 
     public void removeRoom(String roomId) {
         rooms.remove(roomId);
+    }
+
+    public void updateHeartbeat(String roomId, Long userId) {
+        Room room = rooms.get(roomId);
+        if (room != null) {
+            if (userId.equals(room.getCallerID())) {
+                room.setCallerLastHeartbeat(LocalDateTime.now());
+            } else if (userId.equals(room.getCalleeID())) {
+                room.setCalleeLastHeartbeat(LocalDateTime.now());
+            }
+        }
+    }
+
+    @Scheduled(fixedRate = 30000) // Run every 30 seconds
+    public void cleanupInactiveUsers() {
+        LocalDateTime now = LocalDateTime.now();
+        for (Room room : rooms.values()) {
+            if (room.getCallerID() != null && room.getCallerLastHeartbeat() != null) {
+                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 60) {
+                    removeUserFromRoom(room, room.getCallerID());
+                }
+            }
+            if (room.getCalleeID() != null && room.getCalleeLastHeartbeat() != null) {
+                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 60) {
+                    removeUserFromRoom(room, room.getCalleeID());
+                }
+            }
+        }
+    }
+
+    private void removeUserFromRoom(Room room, Long userId) {
+        userRepository.findById(userId).ifPresent(user -> {
+            boolean isCaller = userId.equals(room.getCallerID());
+            boolean isCallee = userId.equals(room.getCalleeID());
+
+            if (room.getRoomStatus().equals(RoomStatus.JOINABLE)) {
+                room.setRoomStatus(RoomStatus.EMPTY);
+                if (isCaller) room.setCallerID(null);
+                if (isCallee) room.setCalleeID(null);
+                user.setRoomId(null);
+                userRepository.save(user);
+                room.setBaseTranscript("");
+                room.setBaseNote("");
+            } else if (room.getRoomStatus().equals(RoomStatus.FULL)) {
+                room.setRoomStatus(RoomStatus.JOINABLE);
+                if (isCaller) room.setCallerID(null);
+                if (isCallee) room.setCalleeID(null);
+                user.setRoomId(null);
+                userRepository.save(user);
+                room.setBaseTranscript("");
+                room.setBaseNote("");
+            }
+            if (room.getRoomStatus() == RoomStatus.EMPTY && room.getIsPrivate()) {
+                removeRoom(String.valueOf(room.getId()));
+            }
+        });
     }
 }
 
