@@ -207,6 +207,7 @@ public class UserController {
 		User user = userRepository.findByToken(token);
 		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
 		if (userPutProfileDTO.getUsername() != null) user.setUsername(userPutProfileDTO.getUsername());
+		if (userPutProfileDTO.getName() != null) user.setName(userPutProfileDTO.getName());
 		if (userPutProfileDTO.getBio() != null) user.setBio(userPutProfileDTO.getBio());
 		if (userPutProfileDTO.getDisabilityStatus() != null) user.setDisabilityStatus(userPutProfileDTO.getDisabilityStatus());
 		userRepository.save(user);

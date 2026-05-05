@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs26.entity.Meeting;
 import ch.uzh.ifi.hase.soprafs26.entity.Note;
 import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
@@ -109,4 +110,31 @@ public interface DTOMapper {
     @Mapping(source = "content", target = "content")
     @Mapping(source = "timestamp", target = "timestamp")
     ChatMessageGetDTO convertEntityToChatMessageGetDTO(ChatMessage chatMessage);
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startDate", target = "startDate")
+    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "owner", target = "owner")
+    @Mapping(source = "invitedUser", target = "invitedUser")
+    MeetingGetDTO convertEntitiyToMeetingGetDTO(Meeting meeting);
+
+    @Mapping(target = "id",  ignore = true)
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startDate", target = "startDate")
+    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "owner", target = "owner")
+    @Mapping(source = "invitedUser", target = "invitedUser")
+    Meeting convertMeetingPostDTOtoEntity(MeetingPostDTO meetingPostDTO);
+
+    @Mapping(target = "id",  source = "id")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startDate", target = "startDate")
+    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "invitedUser", target = "invitedUser")
+    Meeting convertMeetingPutDTOtoEntity(MeetingPutDTO meetingPutDTO);
+
 }

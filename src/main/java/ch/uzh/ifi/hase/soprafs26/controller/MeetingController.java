@@ -1,0 +1,89 @@
+package ch.uzh.ifi.hase.soprafs26.controller;
+
+import ch.uzh.ifi.hase.soprafs26.entity.Meeting;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingDeleteDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingGetDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingPutDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs26.service.MeetingService;
+import ch.uzh.ifi.hase.soprafs26.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class MeetingController {
+
+    private final MeetingService meetingService;
+
+    private final UserService userService;
+
+    public MeetingController(MeetingService meetingService, UserService userService) {
+        this.meetingService = meetingService;
+        this.userService = userService;
+    }
+
+    @PostMapping("/meetings")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseBody
+    public MeetingGetDTO createMeeting(@RequestBody MeetingPostDTO meetingPostDTO,@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "Id", required = true) String Id) {
+        if(!userService.token_auth(token, Long.parseLong(Id))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+
+        Meeting meeting = meetingService.createMeeting(DTOMapper.INSTANCE.convertMeetingPostDTOtoEntity(meetingPostDTO));
+
+        return DTOMapper.INSTANCE.convertEntitiyToMeetingGetDTO(meeting);
+    }
+
+    @GetMapping("/meetings")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<MeetingGetDTO> getAllMeetings(@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
+        if(!userService.token_auth(token, Long.parseLong(Id))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        List<Meeting> meetings = meetingService.getMeetings(Long.parseLong(Id));
+        if(!(meetings == null || meetings.isEmpty())) {
+            List<MeetingGetDTO> meetingGetDTOs = new ArrayList<>();
+            for (Meeting meeting : meetings) {
+                meetingGetDTOs.add(DTOMapper.INSTANCE.convertEntitiyToMeetingGetDTO(meeting));
+            }
+            return meetingGetDTOs;
+        }
+        else {
+            return new ArrayList<>();
+        }
+    }
+
+    @DeleteMapping("/meetings/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public String deleteMeeting(@RequestBody MeetingDeleteDTO meetingDeleteDTO,@PathVariable String id,@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
+        if(!userService.token_auth(token, Long.parseLong(Id))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        Meeting meeting = meetingService.getMeeting(Long.parseLong(id));
+        meetingService.deleteMeeting(meeting);
+        return "Meeting deleted successfully";
+    }
+
+    @PutMapping("/meetings/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public MeetingGetDTO updateMeeting(@RequestBody MeetingPutDTO meetingPutDTO,@PathVariable String id, @RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
+        if(!userService.token_auth(token, Long.parseLong(Id))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
+        }
+        Meeting old =  meetingService.getMeeting(Long.parseLong(id));
+        Meeting current = DTOMapper.INSTANCE.convertMeetingPutDTOtoEntity(meetingPutDTO);
+        current.setOwner(old.getOwner());
+        current.setId(old.getId());
+        meetingService.createMeeting(current);
+        return DTOMapper.INSTANCE.convertEntitiyToMeetingGetDTO(current);
+    }
+}

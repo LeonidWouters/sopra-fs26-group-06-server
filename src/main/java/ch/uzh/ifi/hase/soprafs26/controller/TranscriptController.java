@@ -59,21 +59,14 @@ public class TranscriptController {
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public TranscriptGetDTO getTranscriptById(@PathVariable long id, @RequestHeader("token") String token) {
-        validateToken(token);
+        User user = validateToken(token);
         Transcript transcript = transcriptService.getTranscriptById(id);
+        if (!user.getSessions().contains(transcript.getSessionId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
         return DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(transcript);
     }
 
-    // @PutMapping("/transcripts/{id}")
-    // @ResponseStatus(HttpStatus.OK)
-    // @ResponseBody
-    // public TranscriptGetDTO updateTranscript(@PathVariable long id,
-    //                                          @RequestBody TranscriptPutDTO transcriptPutDTO,
-    //                                          @RequestHeader("token") String token) {
-    //     validateToken(token);
-    //     Transcript updatedTranscript = transcriptService.updateTranscript(id, transcriptPutDTO.getContent());
-    //     return DTOMapper.INSTANCE.convertEntityToTranscriptGetDTO(updatedTranscript);
-    // }
 
     @DeleteMapping("/transcripts/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
