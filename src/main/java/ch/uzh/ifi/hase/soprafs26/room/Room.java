@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.room;
 
+import java.time.LocalDateTime;
 
 public class Room {
 
@@ -25,6 +26,10 @@ public class Room {
     private Long creatorId;
 
     private Long invitedUserId;
+    
+    private LocalDateTime callerLastHeartbeat;
+    
+    private LocalDateTime calleeLastHeartbeat;
 
 
     public static Room createRoom(long id,String name,String description) {
@@ -125,4 +130,12 @@ public class Room {
     public Long getInvitedUserId() { return invitedUserId; }
 
     public void setInvitedUserId(Long invitedUserId) { this.invitedUserId = invitedUserId; }
+
+    public LocalDateTime getCallerLastHeartbeat() { return callerLastHeartbeat; }
+
+    public void setCallerLastHeartbeat(LocalDateTime callerLastHeartbeat) { this.callerLastHeartbeat = callerLastHeartbeat; }
+
+    public LocalDateTime getCalleeLastHeartbeat() { return calleeLastHeartbeat; }
+
+    public void setCalleeLastHeartbeat(LocalDateTime calleeLastHeartbeat) { this.calleeLastHeartbeat = calleeLastHeartbeat; }
 }

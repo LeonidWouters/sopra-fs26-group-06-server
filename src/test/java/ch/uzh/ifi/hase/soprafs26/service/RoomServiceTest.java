@@ -14,9 +14,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
+import org.mockito.Mock;
+
 @ExtendWith(MockitoExtension.class)
 public class RoomServiceTest {
 
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private RoomService roomService;
@@ -62,4 +67,23 @@ public class RoomServiceTest {
         assertEquals("", retrievedRoom.getBaseNote());
     }
 
+    @Test
+    public void updateHeartbeat_updatesCallerHeartbeat() {
+        Room room = roomService.getRoomById("1");
+        room.setCallerID(5L);
+        
+        roomService.updateHeartbeat("1", 5L);
+        
+        assertNotNull(room.getCallerLastHeartbeat());
+    }
+
+    @Test
+    public void updateHeartbeat_updatesCalleeHeartbeat() {
+        Room room = roomService.getRoomById("1");
+        room.setCalleeID(10L);
+        
+        roomService.updateHeartbeat("1", 10L);
+        
+        assertNotNull(room.getCalleeLastHeartbeat());
+    }
 }
