@@ -12,6 +12,9 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ObjectNode;
+import ch.uzh.ifi.hase.soprafs26.entity.ChatMessage;
+import ch.uzh.ifi.hase.soprafs26.service.ChatService;
+
 
 import java.util.Map;
 import java.util.Optional;
@@ -30,11 +33,13 @@ public class SocketsHandler extends TextWebSocketHandler {
     private final UserRepository userRepository;
     private final SessionManager sessionManager;
     private final RoomService roomService;
+    private final ChatService chatService;
 
-    public SocketsHandler(UserRepository userRepository, SessionManager sessionManager, RoomService roomService) {
+    public SocketsHandler(UserRepository userRepository, SessionManager sessionManager, RoomService roomService, ChatService chatService) {
         this.userRepository = userRepository;
         this.sessionManager = sessionManager;
         this.roomService = roomService;
+        this.chatService = chatService;
     }
 
     @Override
@@ -49,6 +54,7 @@ public class SocketsHandler extends TextWebSocketHandler {
 
        session.getAttributes().put(ATTR_USER_ID, user.getId());
        sendJson(session, Map.of("type", "connected", "userId", user.getId()));
+        sessionManager.addActiveUser(user.getId(), session);
 
     }
 
@@ -78,6 +84,34 @@ public class SocketsHandler extends TextWebSocketHandler {
             return;
         }
 
+
+        if ("chat-msg".equals(type)) {
+
+            Long receiverId = payload.get("receiverId").asLong();
+            String messageContent = payload.get("content").asText();
+
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setSenderId(userId);
+            chatMessage.setReceiverId(receiverId);
+            chatMessage.setContent(messageContent);
+            ChatMessage savedMessage = chatService.saveMessage(chatMessage);
+
+            WebSocketSession receiverSession = sessionManager.getActiveUserSocket(receiverId);
+            if (receiverSession != null && receiverSession.isOpen()) {
+
+                ObjectNode msgNode = OBJECT_MAPPER.createObjectNode();
+                msgNode.put("type", "chat-msg");
+                msgNode.put("id", savedMessage.getId());
+                msgNode.put("senderId", savedMessage.getSenderId());
+                msgNode.put("receiverId", savedMessage.getReceiverId());
+                msgNode.put("content", savedMessage.getContent());
+                msgNode.put("timestamp", savedMessage.getTimestamp().toString());
+
+                sendJson(receiverSession, msgNode);
+            }
+            return;
+        }
+
         updateRoomBuffers(session, payload, type);
 
         relayToPeer(session, payload, userId);
@@ -92,9 +126,13 @@ public class SocketsHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         Long userId = getUserId(session);
+
         if (userId != null) {
+            sessionManager.removeActiveUser(userId);
+
             handleLeave(session, userId, false);
         }
+
         System.out.println("Connection closed: " + session.getRemoteAddress() + " with status " + status);
         System.out.println("CloseStatus: " + status);
     }

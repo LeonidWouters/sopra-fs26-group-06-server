@@ -7,6 +7,8 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
+import ch.uzh.ifi.hase.soprafs26.entity.ChatMessage;
+
 
 /**
  * DTOMapper
@@ -101,4 +103,10 @@ public interface DTOMapper {
     @Mapping(source = "sessionId", target = "sessionId")
     TranscriptGetDTO convertEntityToTranscriptGetDTO(Transcript transcript);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "senderId", target = "senderId")
+    @Mapping(source = "receiverId", target = "receiverId")
+    @Mapping(source = "content", target = "content")
+    @Mapping(source = "timestamp", target = "timestamp")
+    ChatMessageGetDTO convertEntityToChatMessageGetDTO(ChatMessage chatMessage);
 }

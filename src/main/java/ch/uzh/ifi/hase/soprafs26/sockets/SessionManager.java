@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class SessionManager {
 
+    private final ConcurrentHashMap<Long, WebSocketSession> activeUsers = new ConcurrentHashMap<>();
+
 	private final ConcurrentHashMap<Long, Session> sessionsByRoomId = new ConcurrentHashMap<>();
 
 	public Session getOrCreateSession(Long roomId) {
@@ -74,4 +76,16 @@ public class SessionManager {
 			throw new IllegalArgumentException("userId must be positive");
 		}
 	}
+
+    public void addActiveUser(Long userId, WebSocketSession session) {
+        activeUsers.put(userId, session);
+    }
+
+    public void removeActiveUser(Long userId) {
+        activeUsers.remove(userId);
+    }
+
+    public WebSocketSession getActiveUserSocket(Long userId) {
+        return activeUsers.get(userId);
+    }
 }
