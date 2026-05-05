@@ -143,7 +143,9 @@ public class TranscriptControllerTest {
         Transcript transcript = new Transcript();
         transcript.setId(1L);
         transcript.setContent("test single transcript");
-        transcript.setSessionId(UUID.randomUUID());
+        UUID sessionId = UUID.randomUUID();
+        transcript.setSessionId(sessionId);
+        user.setSessions(java.util.List.of(sessionId));
 
         given(transcriptService.getTranscriptById(1L)).willReturn(transcript);
 
