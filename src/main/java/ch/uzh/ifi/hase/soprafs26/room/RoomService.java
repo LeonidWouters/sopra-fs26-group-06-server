@@ -8,6 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.time.LocalDateTime;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs26.entity.Note;
+import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
+import ch.uzh.ifi.hase.soprafs26.service.NoteService;
+import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
+import java.util.ArrayList;
+import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,9 +22,16 @@ import org.springframework.scheduling.annotation.Scheduled;
 import java.time.temporal.ChronoUnit;
 
 @Service
+@Transactional
 public class RoomService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NoteService noteService;
+
+    @Autowired
+    private TranscriptService transcriptService;
 
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     public final int NUMBER_OF_ROOMS = 6;
@@ -92,12 +106,12 @@ public class RoomService {
         LocalDateTime now = LocalDateTime.now();
         for (Room room : rooms.values()) {
             if (room.getCallerID() != null && room.getCallerLastHeartbeat() != null) {
-                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 60) {
+                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 30) {
                     removeUserFromRoom(room, room.getCallerID());
                 }
             }
             if (room.getCalleeID() != null && room.getCalleeLastHeartbeat() != null) {
-                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 60) {
+                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 30) {
                     removeUserFromRoom(room, room.getCalleeID());
                 }
             }
@@ -106,6 +120,8 @@ public class RoomService {
 
     private void removeUserFromRoom(Room room, Long userId) {
         userRepository.findById(userId).ifPresent(user -> {
+            persistRoomArtifactsForUser(user, room);
+
             boolean isCaller = userId.equals(room.getCallerID());
             boolean isCallee = userId.equals(room.getCalleeID());
 
@@ -123,13 +139,44 @@ public class RoomService {
                 if (isCallee) room.setCalleeID(null);
                 user.setRoomId(null);
                 userRepository.save(user);
-                room.setBaseTranscript("");
-                room.setBaseNote("");
             }
             if (room.getRoomStatus() == RoomStatus.EMPTY && room.getIsPrivate()) {
                 removeRoom(String.valueOf(room.getId()));
             }
         });
+    }
+
+    private void persistRoomArtifactsForUser(User user, Room room) {
+        String noteContent = room.getBaseNote() == null ? "" : room.getBaseNote().trim();
+        String transcriptContent = room.getBaseTranscript() == null ? "" : room.getBaseTranscript().trim();
+
+        if (noteContent.isBlank() && transcriptContent.isBlank()) {
+            return;
+        }
+
+        UUID sessionId = UUID.randomUUID();
+
+        if (!noteContent.isBlank()) {
+            Note note = new Note();
+            note.setContent(noteContent);
+            note.setSessionId(sessionId);
+            noteService.createNote(note);
+        }
+
+        if (!transcriptContent.isBlank()) {
+            Transcript transcript = new Transcript();
+            transcript.setContent(transcriptContent);
+            transcript.setSessionId(sessionId);
+            transcriptService.createTranscript(transcript);
+        }
+
+        if (user.getSessions() == null) {
+            user.setSessions(new ArrayList<>());
+        }
+
+        if (!user.getSessions().contains(sessionId)) {
+            user.getSessions().add(sessionId);
+        }
     }
 }
 
