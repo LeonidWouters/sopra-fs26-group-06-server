@@ -127,8 +127,7 @@ public class RoomController {
             }
             userToken.setRoomId(null);
             UserRepository.save(userToken);
-            room.setBaseTranscript("");
-            room.setBaseNote("");
+            roomService.checkAndClearIfUserTimeoutIsRunning(Long.toString(id));
         }
         if (room.getRoomStatus() == RoomStatus.EMPTY && room.getIsPrivate()) {
             roomService.removeRoom(Long.toString(id));

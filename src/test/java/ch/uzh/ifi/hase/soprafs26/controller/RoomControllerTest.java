@@ -174,7 +174,7 @@ public class RoomControllerTest {
                 .header("token", "1");
 
         mockMvc.perform(putRequest)
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         Mockito.verify(roomService).updateHeartbeat("1", user.getId());
     }
