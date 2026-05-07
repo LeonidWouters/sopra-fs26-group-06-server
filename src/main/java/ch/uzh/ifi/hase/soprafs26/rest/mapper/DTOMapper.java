@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Meeting;
 import ch.uzh.ifi.hase.soprafs26.entity.Note;
 import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.entity.UserStats;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -128,5 +129,13 @@ public interface DTOMapper {
     @Mapping(source = "endDate", target = "endDate")
     @Mapping(source = "invitedUser", target = "invitedUser")
     Meeting convertMeetingPutDTOtoEntity(MeetingPutDTO meetingPutDTO);
+
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "totalSessions", target = "totalSessions")
+    @Mapping(source = "totalTranscripts", target = "totalTranscripts")
+    @Mapping(source = "totalNotes", target = "totalNotes")
+    @Mapping(source = "totalFriends", target = "totalFriends")
+    @Mapping(source = "computedAt", target = "computedAt")
+    UserStatsGetDTO convertEntityToUserStatsGetDTO(UserStats userStats);
 
 }
