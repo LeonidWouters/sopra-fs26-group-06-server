@@ -33,6 +33,9 @@ public class RoomService {
     @Autowired
     private TranscriptService transcriptService;
 
+    @Autowired
+    private ch.uzh.ifi.hase.soprafs26.sockets.SessionManager sessionManager;
+
     private final ConcurrentHashMap<String, Room> rooms = new ConcurrentHashMap<>();
     public final int NUMBER_OF_ROOMS = 6;
     private long nextPrivateRoomId = 1000;
@@ -106,15 +109,28 @@ public class RoomService {
         LocalDateTime now = LocalDateTime.now();
         for (Room room : rooms.values()) {
             if (room.getCallerID() != null && room.getCallerLastHeartbeat() != null) {
-                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 30) {
+                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 60) {
                     removeUserFromRoom(room, room.getCallerID());
                 }
             }
             if (room.getCalleeID() != null && room.getCalleeLastHeartbeat() != null) {
-                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 30) {
+                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 60) {
                     removeUserFromRoom(room, room.getCalleeID());
                 }
             }
+        }
+    }
+
+    public void checkAndClearIfUserTimeoutIsRunning(String roomId) {
+        Room room = rooms.get(roomId);
+        if (room == null || !room.getRoomStatus().equals(RoomStatus.JOINABLE)) return;
+        
+        Long otherId = room.getCallerID() != null ? room.getCallerID() : room.getCalleeID();
+        if (otherId == null) return;
+
+        java.util.Optional<ch.uzh.ifi.hase.soprafs26.sockets.Session> sessionOpt = sessionManager.findByRoomId(Long.valueOf(roomId));
+        if (sessionOpt.isEmpty() || !sessionOpt.get().containsUser(otherId)) {
+            removeUserFromRoom(room, otherId);
         }
     }
 

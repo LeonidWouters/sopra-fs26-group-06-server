@@ -125,7 +125,7 @@ class SocketsHandlerTest {
     }
 
     @Test
-    void handleTextMessage_speechToText_updatesRoom() throws Exception {
+    void handleTextMessage_speechToText_isIgnored() throws Exception {
         sessionAttributes.put("userId", 10L);
         sessionAttributes.put("roomId", 1L);
         TextMessage message = new TextMessage("{\"type\": \"speech-to-text\", \"content\": \"hello\"}");
@@ -141,7 +141,7 @@ class SocketsHandlerTest {
 
         socketsHandler.handleTextMessage(mockSession, message);
 
-        verify(mockRoom).setBaseTranscript("existing\nhello");
+        verify(mockRoom, never()).setBaseTranscript(any());
     }
 
     @Test
