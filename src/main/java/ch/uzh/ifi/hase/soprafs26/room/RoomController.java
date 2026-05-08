@@ -53,7 +53,7 @@ public class RoomController {
         if(room == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Room not found");
         }
-        String userId = String.valueOf(userToken.getId());
+        Long userId = userToken.getId();
         boolean isCreator = userId.equals(room.getCreatorId());
         boolean isInvitedUser = userId.equals(room.getInvitedUserId());
         if (room.getIsPrivate() && !(isCreator || isInvitedUser)) {
@@ -104,6 +104,11 @@ public class RoomController {
         }
 
         Room room =  roomService.getRoomById(Long.toString(id));
+        if (room == null) {
+            userToken.setRoomId(null);
+            UserRepository.save(userToken);
+            return null;
+        }
         if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
             room.setRoomStatus(RoomStatus.EMPTY);
             if (userToken.getId().equals(room.getCallerID())) {
