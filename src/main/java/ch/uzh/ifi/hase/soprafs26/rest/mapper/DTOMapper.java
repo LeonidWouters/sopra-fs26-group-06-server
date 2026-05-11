@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs26.rest.mapper;
 
+import ch.uzh.ifi.hase.soprafs26.entity.Meeting;
 import ch.uzh.ifi.hase.soprafs26.entity.Note;
 import ch.uzh.ifi.hase.soprafs26.entity.Transcript;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.entity.UserStats;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -100,5 +102,40 @@ public interface DTOMapper {
     @Mapping(source = "createdAt", target = "createdAt")
     @Mapping(source = "sessionId", target = "sessionId")
     TranscriptGetDTO convertEntityToTranscriptGetDTO(Transcript transcript);
+
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startDate", target = "startDate")
+    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "owner", target = "owner")
+    @Mapping(source = "invitedUser", target = "invitedUser")
+    MeetingGetDTO convertEntitiyToMeetingGetDTO(Meeting meeting);
+
+    @Mapping(target = "id",  ignore = true)
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startDate", target = "startDate")
+    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "owner", target = "owner")
+    @Mapping(source = "invitedUser", target = "invitedUser")
+    Meeting convertMeetingPostDTOtoEntity(MeetingPostDTO meetingPostDTO);
+
+    @Mapping(target = "id",  source = "id")
+    @Mapping(source = "title", target = "title")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "startDate", target = "startDate")
+    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "invitedUser", target = "invitedUser")
+    Meeting convertMeetingPutDTOtoEntity(MeetingPutDTO meetingPutDTO);
+
+    @Mapping(source = "userId", target = "userId")
+    @Mapping(source = "totalSessions", target = "totalSessions")
+    @Mapping(source = "totalTranscripts", target = "totalTranscripts")
+    @Mapping(source = "totalNotes", target = "totalNotes")
+    @Mapping(source = "totalFriends", target = "totalFriends")
+    @Mapping(source = "computedAt", target = "computedAt")
+    UserStatsGetDTO convertEntityToUserStatsGetDTO(UserStats userStats);
 
 }

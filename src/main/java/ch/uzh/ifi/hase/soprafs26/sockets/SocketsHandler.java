@@ -227,13 +227,23 @@ public class SocketsHandler extends TextWebSocketHandler {
         }
 
         if (TYPE_SPEECH_TO_TEXT.equals(type)) {
-            String content = payload.hasNonNull("content") ? payload.get("content").asText("") : "";
-            appendToBaseTranscript(room, content);
+            // Speech to text is immediately followed by a text-msg broadcast on the frontend.
+            // Ignored here to prevent unformatted duplicate entries in the backup transcript buffer.
             return;
         }
 
         if (TYPE_TEXT_MSG.equals(type) && payload.hasNonNull("content") && payload.get("content").hasNonNull("message")) {
-            appendToBaseTranscript(room, payload.get("content").get("message").asText(""));
+            String message = payload.get("content").get("message").asText("");
+            String timestamp = payload.get("content").hasNonNull("timestamp") ? payload.get("content").get("timestamp").asText("") : "00:00";
+            
+            Long userId = getUserId(session);
+            String username = "Unknown";
+            if (userId != null) {
+                username = userRepository.findById(userId).map(User::getUsername).orElse("Unknown");
+            }
+            
+            String formattedMessage = timestamp + ", " + username + " : " + message;
+            appendToBaseTranscript(room, formattedMessage);
         }
     }
 
@@ -242,11 +252,11 @@ public class SocketsHandler extends TextWebSocketHandler {
             return;
         }
         String existing = room.getBaseTranscript();
-        if (existing == null || existing.isBlank()) {
-            room.setBaseTranscript(newContent.trim());
+        if (existing == null || existing.isEmpty()) {
+            room.setBaseTranscript(newContent + "\n\n");
         }
         else {
-            room.setBaseTranscript(existing + "\n" + newContent.trim());
+            room.setBaseTranscript(existing + newContent + "\n\n");
         }
     }
 

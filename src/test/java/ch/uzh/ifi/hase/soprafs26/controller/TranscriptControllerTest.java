@@ -111,15 +111,15 @@ public class TranscriptControllerTest {
     public void getTranscriptsBySession_validToken_returnsTranscripts() throws Exception {
         UUID sessionId = UUID.randomUUID();
 
-        User user = new User();
-        user.setToken("1");
-        given(userRepository.findByToken("1")).willReturn(user);
-
         Transcript transcript = new Transcript();
         transcript.setId(1L);
         transcript.setContent("hello transcript");
         transcript.setSessionId(sessionId);
         transcript.setCreatedAt(LocalDateTime.now().withNano(0));
+
+        User user = new User();
+        user.setToken("1");
+        given(userRepository.findByToken("1")).willReturn(user);
 
         given(transcriptService.getTranscriptsBySessionId(sessionId)).willReturn(Collections.singletonList(transcript));
 
@@ -136,14 +136,17 @@ public class TranscriptControllerTest {
 
     @Test
     public void getTranscriptById_validInput_returnsTranscript() throws Exception {
+        UUID sessionId = UUID.randomUUID();
+
         User user = new User();
         user.setToken("1");
+        user.setSessions(Collections.singletonList(sessionId));
         given(userRepository.findByToken("1")).willReturn(user);
 
         Transcript transcript = new Transcript();
         transcript.setId(1L);
         transcript.setContent("test single transcript");
-        transcript.setSessionId(UUID.randomUUID());
+        transcript.setSessionId(sessionId);
 
         given(transcriptService.getTranscriptById(1L)).willReturn(transcript);
 

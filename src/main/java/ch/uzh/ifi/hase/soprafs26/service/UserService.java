@@ -41,6 +41,14 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
+        if (newUser.getUsername() != null && newUser.getUsername().length() > 50)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username too long (max 50)");
+        if (newUser.getName() != null && newUser.getName().length() > 50)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name too long (max 50)");
+        if (newUser.getBio() != null && newUser.getBio().length() > 120)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bio too long (max 120)");
+        if (newUser.getPassword() != null && newUser.getPassword().length() > 255)
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password too long");
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.ONLINE);
         checkIfUserExists(newUser);

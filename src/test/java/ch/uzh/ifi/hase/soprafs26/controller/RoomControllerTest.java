@@ -163,5 +163,20 @@ public class RoomControllerTest {
                 .andExpect(jsonPath("$.description", is(room.getDescription())));
 
     }
+
+    @Test
+    public void receiveHeartbeat_validToken_returnsOk() throws Exception {
+        given(userRepository.findByToken("1")).willReturn(user);
+        given(roomService.getRoomById("1")).willReturn(rooms.get("1"));
+
+        MockHttpServletRequestBuilder putRequest = put("/rooms/1/heartbeat")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1");
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(roomService).updateHeartbeat("1", user.getId());
+    }
 }
 

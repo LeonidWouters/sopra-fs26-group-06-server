@@ -6,6 +6,8 @@ public class UserPutProfileDTO {
 
     private String username;
 
+    private String name;
+
     private DisabilityStatus disabilityStatus;
 
     private String bio;
@@ -24,6 +26,13 @@ public class UserPutProfileDTO {
 
     public void setDisabilityStatus(DisabilityStatus disabilityStatus) {
         this.disabilityStatus = disabilityStatus;
+    }
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getBio() {
