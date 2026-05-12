@@ -109,12 +109,12 @@ public class RoomService {
         LocalDateTime now = LocalDateTime.now();
         for (Room room : rooms.values()) {
             if (room.getCallerID() != null && room.getCallerLastHeartbeat() != null) {
-                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 60) {
+                if (ChronoUnit.SECONDS.between(room.getCallerLastHeartbeat(), now) > 30) {
                     removeUserFromRoom(room, room.getCallerID());
                 }
             }
             if (room.getCalleeID() != null && room.getCalleeLastHeartbeat() != null) {
-                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 60) {
+                if (ChronoUnit.SECONDS.between(room.getCalleeLastHeartbeat(), now) > 30) {
                     removeUserFromRoom(room, room.getCalleeID());
                 }
             }
