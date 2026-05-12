@@ -74,6 +74,7 @@ public class RoomController {
         if(room.getRoomStatus().equals(RoomStatus.EMPTY)){
             room.setRoomStatus(RoomStatus.JOINABLE);
             room.setCallerID(userToken.getId());
+            room.setCallerLastHeartbeat(java.time.LocalDateTime.now());
             userToken.setRoomId(room.getId());
             UserRepository.save(userToken);
             return room;
@@ -84,6 +85,7 @@ public class RoomController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "User cannot be caller and callee");
             }
             room.setCalleeID(userToken.getId());
+            room.setCalleeLastHeartbeat(java.time.LocalDateTime.now());
             userToken.setRoomId(room.getId());
             UserRepository.save(userToken);
             return room;
