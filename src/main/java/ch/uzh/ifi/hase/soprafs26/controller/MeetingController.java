@@ -27,11 +27,10 @@ public class MeetingController {
         this.userService = userService;
     }
 
-    @PostMapping("/meetings")
+    @PostMapping("/meetings/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public MeetingGetDTO createMeeting(@RequestBody MeetingPostDTO meetingPostDTO,@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "Id", required = true) String Id) {
-        if(!userService.token_auth(token, Long.parseLong(Id))) {
+    public MeetingGetDTO createMeeting(@RequestBody MeetingPostDTO meetingPostDTO, @RequestHeader(value = "token", required = true) String token, @PathVariable(required = true) String id) {
+        if(!userService.token_auth(token, Long.parseLong(id))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
 
@@ -40,10 +39,9 @@ public class MeetingController {
         return DTOMapper.INSTANCE.convertEntitiyToMeetingGetDTO(meeting);
     }
 
-    @GetMapping("/meetings")
+    @GetMapping("/meetings/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
-    public List<MeetingGetDTO> getAllMeetings(@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
+    public List<MeetingGetDTO> getAllMeetings(@RequestHeader(value = "token", required = true) String token, @PathVariable(value = "id", required = true) String Id) {
         if(!userService.token_auth(token, Long.parseLong(Id))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
@@ -62,7 +60,6 @@ public class MeetingController {
 
     @DeleteMapping("/meetings/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public String deleteMeeting(@RequestBody MeetingDeleteDTO meetingDeleteDTO,@PathVariable String id,@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
         if(!userService.token_auth(token, Long.parseLong(Id))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
@@ -74,7 +71,6 @@ public class MeetingController {
 
     @PutMapping("/meetings/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public MeetingGetDTO updateMeeting(@RequestBody MeetingPutDTO meetingPutDTO,@PathVariable String id, @RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
         if(!userService.token_auth(token, Long.parseLong(Id))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
