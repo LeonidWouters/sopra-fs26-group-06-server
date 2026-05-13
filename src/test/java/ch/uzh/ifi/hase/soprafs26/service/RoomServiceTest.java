@@ -16,6 +16,11 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import org.mockito.Mock;
+import static org.mockito.Mockito.*;
+import java.time.LocalDateTime;
+import ch.uzh.ifi.hase.soprafs26.entity.User;
+import org.springframework.web.server.ResponseStatusException;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class RoomServiceTest {
@@ -85,5 +90,47 @@ public class RoomServiceTest {
         roomService.updateHeartbeat("1", 10L);
         
         assertNotNull(room.getCalleeLastHeartbeat());
+    }
+
+    @Test
+    public void cleanupInactiveUsers_removesInactiveCaller_keepsActiveCallee() {
+        // give room an active callee and an inactive caller
+        Room room = roomService.getRoomById("1");
+        room.setRoomStatus(RoomStatus.FULL);
+        Long callerId = 3L;
+        Long calleeId = 4L;
+        room.setCallerID(callerId);
+        room.setCalleeID(calleeId);
+        // Caller heartbeat is 35 seconds ago -> should be cleaned up
+        room.setCallerLastHeartbeat(LocalDateTime.now().minusSeconds(35));
+        // Callee heartbeat is 10 seconds ago -> should NOT be cleaned up
+        room.setCalleeLastHeartbeat(LocalDateTime.now().minusSeconds(10));
+        User mockCaller = new User();
+        mockCaller.setId(callerId);
+        mockCaller.setRoomId(room.getId());
+        when(userRepository.findById(callerId)).thenReturn(Optional.of(mockCaller));
+        // Call cleanup
+        roomService.cleanupInactiveUsers();
+        // Verify caller is removed
+        assertNull(room.getCallerID());
+        assertNull(mockCaller.getRoomId());
+        // Verify callee is still in the room
+        assertEquals(calleeId, room.getCalleeID());
+        assertEquals(RoomStatus.JOINABLE, room.getRoomStatus()); // Changed to JOINABLE because one left
+    }
+
+    @Test
+    public void inviteUser_throwsExceptionWhenInvitingNonFriend() {
+        Long creatorId = 100L;
+        Room privateRoom = roomService.createPrivateRoom(creatorId, "Secret Room", "Shhh!");
+        User inviter = new User();
+        inviter.setId(creatorId);
+        inviter.setFriends(List.of(200L)); // friend id is 200
+        User invited = new User();
+        // NOT a friend
+        invited.setId(300L);
+        assertThrows(ResponseStatusException.class, () -> {
+            roomService.inviteUser(String.valueOf(privateRoom.getId()), inviter, invited);
+        }, "Should throw an exception if invited user is not a friend");
     }
 }
