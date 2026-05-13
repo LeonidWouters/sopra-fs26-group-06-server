@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs26.controller;
 
 import ch.uzh.ifi.hase.soprafs26.entity.Meeting;
-import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingDeleteDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.MeetingPutDTO;
@@ -58,9 +57,9 @@ public class MeetingController {
         }
     }
 
-    @DeleteMapping("/meetings/{id}")
+    @DeleteMapping("/meetings/{id}/{Id}")
     @ResponseStatus(HttpStatus.OK)
-    public String deleteMeeting(@RequestBody MeetingDeleteDTO meetingDeleteDTO,@PathVariable String id,@RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
+    public String deleteMeeting(@PathVariable String id,@RequestHeader(value = "token", required = true) String token, @PathVariable(required = true) String Id) {
         if(!userService.token_auth(token, Long.parseLong(Id))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
@@ -71,11 +70,11 @@ public class MeetingController {
 
     @PutMapping("/meetings/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public MeetingGetDTO updateMeeting(@RequestBody MeetingPutDTO meetingPutDTO,@PathVariable String id, @RequestHeader(value = "token", required = true) String token, @RequestHeader(value = "id", required = true) String Id) {
-        if(!userService.token_auth(token, Long.parseLong(Id))) {
+    public MeetingGetDTO updateMeeting(@RequestBody MeetingPutDTO meetingPutDTO,@PathVariable String id, @RequestHeader(value = "token", required = true) String token) {
+        if(!userService.token_auth(token, Long.parseLong(id))) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
         }
-        Meeting old =  meetingService.getMeeting(Long.parseLong(id));
+        Meeting old =  meetingService.getMeeting(meetingPutDTO.getId());
         Meeting current = DTOMapper.INSTANCE.convertMeetingPutDTOtoEntity(meetingPutDTO);
         current.setOwner(old.getOwner());
         current.setId(old.getId());
