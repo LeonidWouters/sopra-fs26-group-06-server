@@ -13,6 +13,7 @@ import ch.uzh.ifi.hase.soprafs26.room.RoomStatus;
 import ch.uzh.ifi.hase.soprafs26.service.NoteService;
 import ch.uzh.ifi.hase.soprafs26.service.TranscriptService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.UserLoginDTO;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -380,4 +381,34 @@ public class UserControllerTest {
                     String.format("The request body could not be created.%s", e));
         }
     }
+
+
+    @Test
+    public void auth_validUserLogin_returnsUserAndToken() throws Exception {
+        // mock user service checking user during login
+        UserLoginDTO userLoginDTO = new UserLoginDTO();
+        userLoginDTO.setUsername("testUsername");
+        userLoginDTO.setPassword("correctPassword");
+
+        User internalUser = new User();
+        internalUser.setId(1L);
+        internalUser.setUsername("testUsername");
+        internalUser.setToken("generated-login-token");
+        internalUser.setStatus(UserStatus.ONLINE);
+
+        given(userService.checkUser(Mockito.any())).willReturn(internalUser);
+
+        MockHttpServletRequestBuilder postRequest = post("/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userLoginDTO));
+
+        // perform login POST and expect OK and correct JSON fields
+        mockMvc.perform(postRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(internalUser.getId().intValue())))
+                .andExpect(jsonPath("$.username", is(internalUser.getUsername())))
+                .andExpect(jsonPath("$.status", is(internalUser.getStatus().toString())))
+                .andExpect(jsonPath("$.token", is(internalUser.getToken())));
+    }
+
 }

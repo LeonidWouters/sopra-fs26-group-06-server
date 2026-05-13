@@ -178,5 +178,33 @@ public class RoomControllerTest {
 
         Mockito.verify(roomService).updateHeartbeat("1", user.getId());
     }
+
+    
+    @Test
+    public void createPrivateRoom_validInput_returnsCreatedRoom() throws Exception {
+        // valid token and user
+        given(userRepository.findByToken("1")).willReturn(user);
+        
+        Room privateRoom = Room.createPrivateRoom(999L, user.getId(), "Secret Chat", "Only for me and friends");
+        given(roomService.createPrivateRoom(user.getId(), "Secret Chat", "Only for me and friends")).willReturn(privateRoom);
+
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("name", "Secret Chat");
+        body.put("description", "Only for me and friends");
+
+        MockHttpServletRequestBuilder postRequest = post("/rooms/private")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1")
+                .content(new tools.jackson.databind.ObjectMapper().writeValueAsString(body));
+
+        // valid body creates private room successfully
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(999)))
+                .andExpect(jsonPath("$.name", is("Secret Chat")))
+                .andExpect(jsonPath("$.description", is("Only for me and friends")))
+                .andExpect(jsonPath("$.isPrivate", is(true)))
+                .andExpect(jsonPath("$.creatorId", is(user.getId().intValue())));
+    }
 }
 

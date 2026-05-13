@@ -6,8 +6,8 @@ public class MeetingPutDTO {
     private Long id;
     private String title;
     private String description;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDateTime start;
+    private LocalDateTime end;
     private Long invitedUser;
 
     public Long getId() {
@@ -34,20 +34,20 @@ public class MeetingPutDTO {
         this.description = description;
     }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
+    public LocalDateTime getStart() {
+        return start;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
+    public void setStart(LocalDateTime start) {
+        this.start = start;
     }
 
-    public LocalDateTime getEndDate() {
-        return endDate;
+    public LocalDateTime getEnd() {
+        return end;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
-        this.endDate = endDate;
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
     }
 
     public Long getInvitedUser() {

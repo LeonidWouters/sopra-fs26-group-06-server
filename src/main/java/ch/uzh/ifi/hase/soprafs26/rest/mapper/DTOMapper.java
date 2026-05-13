@@ -107,8 +107,8 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "id")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "startDate", target = "startDate")
-    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "startDate", target = "start")
+    @Mapping(source = "endDate", target = "end")
     @Mapping(source = "owner", target = "owner")
     @Mapping(source = "invitedUser", target = "invitedUser")
     MeetingGetDTO convertEntitiyToMeetingGetDTO(Meeting meeting);
@@ -116,8 +116,8 @@ public interface DTOMapper {
     @Mapping(target = "id",  ignore = true)
     @Mapping(source = "title", target = "title")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "startDate", target = "startDate")
-    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "start", target = "startDate")
+    @Mapping(source = "end", target = "endDate")
     @Mapping(source = "owner", target = "owner")
     @Mapping(source = "invitedUser", target = "invitedUser")
     Meeting convertMeetingPostDTOtoEntity(MeetingPostDTO meetingPostDTO);
@@ -125,8 +125,8 @@ public interface DTOMapper {
     @Mapping(target = "id",  source = "id")
     @Mapping(source = "title", target = "title")
     @Mapping(source = "description", target = "description")
-    @Mapping(source = "startDate", target = "startDate")
-    @Mapping(source = "endDate", target = "endDate")
+    @Mapping(source = "start", target = "startDate")
+    @Mapping(source = "end", target = "endDate")
     @Mapping(source = "invitedUser", target = "invitedUser")
     Meeting convertMeetingPutDTOtoEntity(MeetingPutDTO meetingPutDTO);
 
