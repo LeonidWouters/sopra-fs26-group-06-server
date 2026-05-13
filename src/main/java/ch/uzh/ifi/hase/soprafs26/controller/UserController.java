@@ -193,7 +193,8 @@ public class UserController {
 	@ResponseBody
 	public void changePassword(@PathVariable Long id, @RequestBody UserPutPasswordDTO userPutPasswordDTO, @RequestHeader("token") String token) {
 		User user = userRepository.findByToken(token);
-		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        if (!user.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only change your own password");
 		String newPassword = userPutPasswordDTO.getPassword();
 		if (newPassword == null || newPassword.isBlank()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must not be empty");
 		user.setPassword(newPassword);
@@ -205,7 +206,8 @@ public class UserController {
 	@ResponseBody
 	public void updateProfile(@PathVariable Long id, @RequestBody UserPutProfileDTO userPutProfileDTO, @RequestHeader("token") String token) {
 		User user = userRepository.findByToken(token);
-		if (user == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        if (user == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token not found");
+        if (!user.getId().equals(id)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only update your own profile");
 		if (userPutProfileDTO.getUsername() != null) user.setUsername(userPutProfileDTO.getUsername());
 		if (userPutProfileDTO.getName() != null) user.setName(userPutProfileDTO.getName());
 		if (userPutProfileDTO.getBio() != null) user.setBio(userPutProfileDTO.getBio());
