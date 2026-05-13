@@ -133,4 +133,37 @@ public class UserServiceTest {
 
                 assertThrows(ResponseStatusException.class, () -> userService.acceptFriendRequest(testUser.getId(), sender.getId()));
         }
+
+        @Test
+        public void checkUser_invalidPassword_throwsException() {
+                // testUser exists in DB with specific password
+                Mockito.when(userRepository.findByUsername(testUser.getUsername())).thenReturn(testUser);
+                // user tries to login with wrong password
+                User loginAttempt = new User();
+                loginAttempt.setUsername(testUser.getUsername());
+                loginAttempt.setPassword("wrongPassword123");
+                //an UNAUTHORIZED exception is thrown
+                assertThrows(ResponseStatusException.class, () -> userService.checkUser(loginAttempt));
+        }
+
+        @Test
+        public void acceptFriendRequest_succesfullyAddsFriendsAndRemovesPending() {
+                // two valid users where testUser has a pending friend request from sender
+                User sender = new User();
+                sender.setId(2L);
+                sender.setFriends(new java.util.ArrayList<>());
+                testUser.setId(3L);
+                testUser.setFriends(new java.util.ArrayList<>());
+                testUser.setPendingFriendRequests(new java.util.ArrayList<>(java.util.List.of(sender.getId())));
+                Mockito.when(userRepository.findByid(sender.getId())).thenReturn(sender);
+                Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+                // testUser accepts the friend request
+                userService.acceptFriendRequest(testUser.getId(), sender.getId());
+                // the request is removed and both are mutually added as friends
+                assertFalse(testUser.getPendingFriendRequests().contains(sender.getId()));
+                assertTrue(testUser.getFriends().contains(sender.getId()));
+                assertTrue(sender.getFriends().contains(testUser.getId()));
+                Mockito.verify(userRepository, Mockito.times(1)).save(testUser);
+                Mockito.verify(userRepository, Mockito.times(1)).save(sender);
+        }
 }
