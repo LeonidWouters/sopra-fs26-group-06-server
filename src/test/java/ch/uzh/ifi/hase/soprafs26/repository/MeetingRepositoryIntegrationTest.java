@@ -30,8 +30,8 @@ public class MeetingRepositoryIntegrationTest {
         meeting.setInvitedUser(2L);
         meeting.setTitle("test meeting");
         meeting.setDescription("test meeting description");
-        meeting.setStartDate(LocalDateTime.now());
-        meeting.setEndDate(LocalDateTime.now().plusDays(1));
+        meeting.setStartDate(LocalDateTime.now().withNano(0));
+        meeting.setEndDate(LocalDateTime.now().plusDays(1).withNano(0));
     }
 
     @Test
