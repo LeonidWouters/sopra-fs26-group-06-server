@@ -37,7 +37,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -287,7 +286,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void changePassword_UserDoesNotExist() throws Exception {
+    public void changePassword_tokenInvalid_returnsUnauthorized() throws Exception {
         given(userRepository.findByToken("1")).willReturn(null);
 
         UserPutPasswordDTO userPutDTO = new UserPutPasswordDTO();
@@ -299,7 +298,26 @@ public class UserControllerTest {
                 .content(asJsonString(userPutDTO));
 
         mockMvc.perform(putRequest)
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void changePassword_wrongUserId_returnsForbidden() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setToken("1");
+        given(userRepository.findByToken("1")).willReturn(user);
+
+        UserPutPasswordDTO userPutDTO = new UserPutPasswordDTO();
+        userPutDTO.setPassword("newTestPassword");
+
+        MockHttpServletRequestBuilder putRequest = put("/users/99/password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1")
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest)
+                .andExpect(status().isForbidden());
     }
 
     @Test
