@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.verify;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 
@@ -205,6 +206,33 @@ public class RoomControllerTest {
                 .andExpect(jsonPath("$.description", is("Only for me and friends")))
                 .andExpect(jsonPath("$.isPrivate", is(true)))
                 .andExpect(jsonPath("$.creatorId", is(user.getId().intValue())));
+    }
+
+    @Test
+    public void inviteToRoom_validInput_invitationSent() throws Exception {
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("username", "friendUsername");
+
+        User userToken = new User();
+        userToken.setId(1L);
+        userToken.setToken("1");
+
+        User invitedUser = new User();
+        invitedUser.setId(2L);
+        invitedUser.setUsername("friendUsername");
+
+        given(userRepository.findByToken("1")).willReturn(userToken);
+        given(userRepository.findByUsername("friendUsername")).willReturn(invitedUser);
+
+        MockHttpServletRequestBuilder postRequest = post("/rooms/1/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1")
+                .content(new tools.jackson.databind.ObjectMapper().writeValueAsString(body));
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isOk());
+
+        verify(roomService).inviteUser(Mockito.eq("1"), Mockito.any(User.class), Mockito.any(User.class));
     }
 }
 
