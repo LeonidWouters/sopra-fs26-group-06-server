@@ -428,5 +428,31 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.status", is(internalUser.getStatus().toString())))
                 .andExpect(jsonPath("$.token", is(internalUser.getToken())));
     }
+    
+    @Test
+    public void getUserById_validInput_returnsUser() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testUsername");
+        user.setName("First Last");
+        user.setBio("testBio");
+        user.setStatus(UserStatus.ONLINE);
+        user.setCreationDate(LocalDateTime.now().withNano(0));
+        user.setToken("1");
 
+        given(userService.getByID(1L)).willReturn(user);
+        given(userRepository.findByToken(Mockito.anyString())).willReturn(user);
+
+        MockHttpServletRequestBuilder getRequest = get("/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1");
+
+        mockMvc.perform(getRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.name", is(user.getName())))
+                .andExpect(jsonPath("$.bio", is(user.getBio())))
+                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate().withNano(0).toString())))
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
+    }
 }
