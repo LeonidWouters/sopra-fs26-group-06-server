@@ -63,7 +63,7 @@ public class RoomControllerTest {
         user.setName("name");
         user.setId(1L);
         user.setStatus(UserStatus.ONLINE);
-        user.setCreationDate(LocalDateTime.now());
+        user.setCreationDate(LocalDateTime.now().withNano(0));
 
 
         for (int i = 1; i <= 6; i++) {
