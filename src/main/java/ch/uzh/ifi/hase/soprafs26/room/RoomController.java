@@ -79,17 +79,18 @@ public class RoomController {
             UserRepository.save(userToken);
             return room;
         }
-        if(room.getRoomStatus().equals(RoomStatus.JOINABLE)){
-            room.setRoomStatus(RoomStatus.FULL);
-            if(userToken.getId() == room.getCallerID()){
+        if (room.getRoomStatus().equals(RoomStatus.JOINABLE)) {
+            if (userToken.getId().equals(room.getCallerID())) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "User cannot be caller and callee");
             }
+            room.setRoomStatus(RoomStatus.FULL);
             room.setCalleeID(userToken.getId());
             room.setCalleeLastHeartbeat(java.time.LocalDateTime.now());
             userToken.setRoomId(room.getId());
             UserRepository.save(userToken);
             return room;
         }
+
         if(room.getRoomStatus().equals(RoomStatus.FULL)){
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Room is Full");
         }

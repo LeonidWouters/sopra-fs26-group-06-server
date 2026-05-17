@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -143,6 +145,27 @@ public class RoomControllerTest {
 
         mockMvc.perform(getRequest).andExpect(status().isConflict());
 
+    }
+
+    @Test
+    public void Room_when_join_cannotBeCallerCallee_withLargeId() throws Exception {
+        User bigIdUser = new User();
+        bigIdUser.setId(200L);
+        bigIdUser.setToken("big");
+        given(userRepository.findByToken("big")).willReturn(bigIdUser);
+        given(roomService.getRoomById("1")).willReturn(rooms.get("1"));
+        Room room = rooms.get("1");
+        room.setRoomStatus(RoomStatus.JOINABLE);
+        room.setCallerID(200L);
+
+        MockHttpServletRequestBuilder getRequest = put("/rooms/1/join")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "big");
+
+        mockMvc.perform(getRequest).andExpect(status().isConflict());
+
+        assertEquals(RoomStatus.JOINABLE, room.getRoomStatus());
+        assertNull(room.getCalleeID());
     }
 
     @Test
