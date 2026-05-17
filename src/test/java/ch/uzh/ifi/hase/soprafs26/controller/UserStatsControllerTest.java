@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -78,5 +80,36 @@ public class UserStatsControllerTest {
         // then
         mockMvc.perform(getRequest)
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void getUserStats_userNotFound_returnsNotFound() throws Exception {
+        // given
+        User authenticatedUser = new User();
+        authenticatedUser.setToken("valid-token");
+
+        given(userRepository.findByToken("valid-token")).willReturn(authenticatedUser);
+        given(userStatsService.getStats(1L))
+                .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/users/1/stats")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "valid-token");
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getUserStats_missingTokenHeader_returnsBadRequest() throws Exception {
+        // when — no token header sent
+        MockHttpServletRequestBuilder getRequest = get("/users/1/stats")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isBadRequest());
     }
 }
