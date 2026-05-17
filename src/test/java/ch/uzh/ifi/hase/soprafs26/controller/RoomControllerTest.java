@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.verify;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 
@@ -26,6 +27,8 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -145,6 +148,27 @@ public class RoomControllerTest {
     }
 
     @Test
+    public void Room_when_join_cannotBeCallerCallee_withLargeId() throws Exception {
+        User bigIdUser = new User();
+        bigIdUser.setId(200L);
+        bigIdUser.setToken("big");
+        given(userRepository.findByToken("big")).willReturn(bigIdUser);
+        given(roomService.getRoomById("1")).willReturn(rooms.get("1"));
+        Room room = rooms.get("1");
+        room.setRoomStatus(RoomStatus.JOINABLE);
+        room.setCallerID(200L);
+
+        MockHttpServletRequestBuilder getRequest = put("/rooms/1/join")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "big");
+
+        mockMvc.perform(getRequest).andExpect(status().isConflict());
+
+        assertEquals(RoomStatus.JOINABLE, room.getRoomStatus());
+        assertNull(room.getCalleeID());
+    }
+
+    @Test
     public void Room_when_leaves_returnsUpdatedRoom() throws Exception {
         given(userRepository.findByToken("1")).willReturn(user);
         given(roomService.getRoomById("1")).willReturn(rooms.get("1"));
@@ -205,6 +229,33 @@ public class RoomControllerTest {
                 .andExpect(jsonPath("$.description", is("Only for me and friends")))
                 .andExpect(jsonPath("$.isPrivate", is(true)))
                 .andExpect(jsonPath("$.creatorId", is(user.getId().intValue())));
+    }
+
+    @Test
+    public void inviteToRoom_validInput_invitationSent() throws Exception {
+        java.util.Map<String, String> body = new java.util.HashMap<>();
+        body.put("username", "friendUsername");
+
+        User userToken = new User();
+        userToken.setId(1L);
+        userToken.setToken("1");
+
+        User invitedUser = new User();
+        invitedUser.setId(2L);
+        invitedUser.setUsername("friendUsername");
+
+        given(userRepository.findByToken("1")).willReturn(userToken);
+        given(userRepository.findByUsername("friendUsername")).willReturn(invitedUser);
+
+        MockHttpServletRequestBuilder postRequest = post("/rooms/1/invite")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("token", "1")
+                .content(new tools.jackson.databind.ObjectMapper().writeValueAsString(body));
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isOk());
+
+        verify(roomService).inviteUser(Mockito.eq("1"), Mockito.any(User.class), Mockito.any(User.class));
     }
 }
 
