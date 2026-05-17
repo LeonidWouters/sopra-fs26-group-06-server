@@ -112,7 +112,7 @@ public class UserControllerTest {
         user.setToken("1");
         user.setBio("testBio");
         user.setStatus(UserStatus.ONLINE);
-        user.setCreationDate(LocalDateTime.now());
+        user.setCreationDate(LocalDateTime.now().withNano(0));
 
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setPassword("test");
