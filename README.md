@@ -1,4 +1,4 @@
-<div><img src="../sopra-fs26-group-06-client/public/banner_logo.png" alt="CommunicALL Banner Logo" width="15%"></div>
+<div><img src="public/banner_logo.png" alt="CommunicALL Banner Logo" width="15%"></div>
 
 # CommunicALL
 
