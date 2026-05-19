@@ -45,15 +45,11 @@ It allows for p2p video calling and supports a range of accessibility features, 
 ### Installation:
 
 **Start with the backend**
-1. Clone the repo
-   `git clone https://github.com/LeonidWouters/sopra-fs26-group-06-server.git`
-2. Navigate to the project, run
-   `./gradlew build`
-3. Run server
-   `./gradlew bootRun`
+1. Clone the repo `git clone https://github.com/LeonidWouters/sopra-fs26-group-06-server.git`
+2. Navigate to the project, run `./gradlew build`
+3. Run server `./gradlew bootRun`
 4. The server runs on port 8080, so visit [localhost://8080](localhost://8080). You should now see the following text: *"The application is running."*
 5. To open the h2 database, visit [http://localhost:8080/h2-console/](http://localhost:8080/h2-console/)
-
 6. If you want to run the tests, run `./gradlew test`
 
 **If the backend is running, continue with the frontend**
