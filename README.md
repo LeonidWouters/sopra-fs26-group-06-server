@@ -24,10 +24,10 @@ It allows for p2p video calling and supports a range of accessibility features, 
 1. **WebSocket Handler ([SocketsHandler.java](../sopra-fs26-group-06-server/src/main/java/ch/uzh/ifi/hase/soprafs26/sockets/SocketsHandler.java))**:
    This backend element routes real-time, bi-directional communication between the server and the clients. Besides handling joining and leaving logic for users in active rooms, it acts as the signaling channel for P2P connection setups and distributes payload events such as live chat messages, STT transcripts, and collaborative markdown updates to peers.
 
-2. **Main Dashboard ([app/mainpage/page.tsx](app/mainpage/page.tsx))**:
+2. **Main Dashboard ([app/mainpage/page.tsx](../sopra-fs26-group-06-client/app/mainpage/page.tsx))**:
    Acting as the central dashboard after logging in, this component gives users a comprehensive overview of joinable rooms, their statistics, and user search. It dynamically manages UI state for room invitations and enables users to easily create their own private rooms and invite friends.
 
-3. **Meeting Rooms ([app/rooms/[id]/page.tsx](app/rooms/[id]/page.tsx))**:
+3. **Meeting Rooms ([app/rooms/[id]/page.tsx](../sopra-fs26-group-06-client/app/rooms/[id]/page.tsx))**:
    The primary layout where active sessions take place. It handles the entire P2P WebRTC connection process, tracks ICE candidates, and hosts the collaborative markdown editor. Crucially, it manages `SpeechRecognition` (STT) for live spoken subtitles and `SpeechSynthesis` (TTS) to read incoming chats aloud, wrapping it all into one interface and preparing the transcripts to be saved upon exit.
 
 4. **Transcripts & Notes Management ([TranscriptController.java](../sopra-fs26-group-06-server/src/main/java/ch/uzh/ifi/hase/soprafs26/controller/TranscriptController.java) & [NoteController.java](../sopra-fs26-group-06-server/src/main/java/ch/uzh/ifi/hase/soprafs26/controller/NoteController.java))**:
