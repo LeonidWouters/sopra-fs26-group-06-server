@@ -12,6 +12,11 @@ import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.lang.System.out;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTest {
@@ -166,4 +171,63 @@ public class UserServiceTest {
                 Mockito.verify(userRepository, Mockito.times(1)).save(testUser);
                 Mockito.verify(userRepository, Mockito.times(1)).save(sender);
         }
+
+    @Test
+    public void removeFriend_userNotFound_throwsException() {
+        Mockito.when(userRepository.findByid(1L)).thenReturn(testUser);
+        Mockito.when(userRepository.findByid(2L)).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class,
+                () -> userService.removeFriend(1L, 2L));
+    }
+
+    @Test
+    public void removeFriend_notFriends_throwsException() {
+        testUser.setFriends(new ArrayList<>());
+
+        User other = new User();
+        other.setId(2L);
+        other.setFriends(new ArrayList<>());
+
+        Mockito.when(userRepository.findByid(1L)).thenReturn(testUser);
+        Mockito.when(userRepository.findByid(2L)).thenReturn(other);
+
+        assertThrows(ResponseStatusException.class,
+                () -> userService.removeFriend(1L, 2L));
+    }
+    @Test
+    public void getFriends_userNotFound_throwsException() {
+        Mockito.when(userRepository.findByid(99L)).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> userService.getFriends(99L));
+
+    }
+
+    @Test
+    public void getFriends_skipsDeletedFriends_returnsOnlyFound() {
+        testUser.setFriends(new ArrayList<>(List.of(2L, 3L)));
+        Mockito.when(userRepository.findByid(1L)).thenReturn(testUser);
+
+        User validFriend = new User();
+        validFriend.setId(2L);
+        Mockito.when(userRepository.findByid(2L)).thenReturn(validFriend);
+        Mockito.when(userRepository.findByid(3L)).thenReturn(null); // stale/deleted
+
+        List<User> result = userService.getFriends(1L);
+
+        assertEquals(1, result.size());
+        assertEquals(2L, result.get(0).getId());
+    }
+
+    @Test
+    public void getFriends_noFriends_returnsEmptyList() {
+        testUser.setFriends(new ArrayList<>());
+        Mockito.when(userRepository.findByid(1L)).thenReturn(testUser);
+
+        List<User> result = userService.getFriends(1L);
+
+        assertTrue(result.isEmpty());
+    }
+
+    
 }
