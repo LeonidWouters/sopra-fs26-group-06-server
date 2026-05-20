@@ -102,11 +102,8 @@ This project was developed during the Software Engineering Lab (SoPra) at the **
 
 # License
 
-This project is licensed under different licenses depending on the component:
+This project and all its components are licensed under the **GNU General Public License v3.0**.
 
-*   **Frontend:** [GNU GPL v3.0](../sopra-fs26-group-06-client/LICENSE.txt)
-*   **Backend:** [Apache License 2.0](../sopra-fs26-group-06-server/LICENSE.txt)
-
-For more details, please see the respective `LICENSE` files in the subdirectories.
+For more details, please see the [LICENSE](LICENSE.txt) file or the [official GNU website](https://www.gnu.org/licenses/gpl-3.0.html).
 
 
