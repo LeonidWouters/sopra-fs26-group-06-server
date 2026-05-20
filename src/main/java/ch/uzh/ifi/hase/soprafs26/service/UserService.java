@@ -103,7 +103,6 @@ public class UserService {
     private void authenticate(User userLogin) {
         User findUsername = userRepository.findByUsername(userLogin.getUsername());
 
-        String baseErrorMessage = "The %s provided %s not correct!";
         if (findUsername == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "This User does not exist!");

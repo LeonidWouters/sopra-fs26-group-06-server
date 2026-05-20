@@ -99,7 +99,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$[0].username", is(user.getUsername())))
                 .andExpect(jsonPath("$[0].name", is(user.getName())))
                 .andExpect(jsonPath("$[0].bio", is(user.getBio())))
-                .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().withNano(0).toString())))
+                .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate().toString())))
                 .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
     }
     @Test
@@ -454,7 +454,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
                 .andExpect(jsonPath("$.name", is(user.getName())))
                 .andExpect(jsonPath("$.bio", is(user.getBio())))
-                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate().withNano(0).toString())))
+                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate().toString())))
                 .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
     }
 
