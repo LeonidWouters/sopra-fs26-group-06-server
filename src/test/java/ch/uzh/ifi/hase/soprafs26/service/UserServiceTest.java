@@ -229,5 +229,96 @@ public class UserServiceTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    public void sendFriendRequest_validRequest_addsToPendingList() {
+        User sender = new User();
+        sender.setId(2L);
+        testUser.setId(3L);
+        testUser.setPendingFriendRequests(new ArrayList<>());
+
+        Mockito.when(userRepository.findByid(sender.getId())).thenReturn(sender);
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+        userService.sendFriendRequest(sender.getId(), testUser.getId());
+
+        assertTrue(testUser.getPendingFriendRequests().contains(sender.getId()));
+        Mockito.verify(userRepository, Mockito.times(1)).save(testUser);
+    }
+
+    @Test
+    public void removeFriend_validRequest_removesFromFriendLists() {
+        User friend = new User();
+        friend.setId(2L);
+        testUser.setId(3L);
+
+        testUser.setFriends(new ArrayList<>(List.of(friend.getId())));
+        friend.setFriends(new ArrayList<>(List.of(testUser.getId())));
+
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+        Mockito.when(userRepository.findByid(friend.getId())).thenReturn(friend);
+
+        userService.removeFriend(testUser.getId(), friend.getId());
+
+        assertFalse(testUser.getFriends().contains(friend.getId()));
+        assertFalse(friend.getFriends().contains(testUser.getId()));
+        Mockito.verify(userRepository, Mockito.times(1)).save(testUser);
+        Mockito.verify(userRepository, Mockito.times(1)).save(friend);
+    }
+
+    @Test
+    public void declineFriendRequest_validRequest_removesFromPending() {
+        User sender = new User();
+        sender.setId(2L);
+        testUser.setId(3L);
+        testUser.setPendingFriendRequests(new ArrayList<>(List.of(sender.getId())));
+
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+        userService.declineFriendRequest(testUser.getId(), sender.getId());
+
+        assertFalse(testUser.getPendingFriendRequests().contains(sender.getId()));
+        Mockito.verify(userRepository, Mockito.times(1)).save(testUser);
+    }
+
+    @Test
+    public void declineFriendRequest_noPendingRequest_throwsException() {
+        testUser.setId(3L);
+        testUser.setPendingFriendRequests(new ArrayList<>());
+
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+        assertThrows(ResponseStatusException.class, () -> userService.declineFriendRequest(testUser.getId(), 2L));
+    }
+
+    @Test
+    public void getPendingRequests_hasRequests_returnsList() {
+        User pendingUser = new User();
+        pendingUser.setId(2L);
+        testUser.setPendingFriendRequests(new ArrayList<>(List.of(pendingUser.getId())));
+
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+        Mockito.when(userRepository.findByid(pendingUser.getId())).thenReturn(pendingUser);
+
+        List<User> results = userService.getPendingRequests(testUser.getId());
+
+        assertEquals(1, results.size());
+        assertEquals(2L, results.get(0).getId());
+    }
+
+    @Test
+    public void token_auth_invalidToken_throwsException() {
+        testUser.setToken("valid-token");
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+        assertThrows(ResponseStatusException.class, () -> userService.token_auth("invalid-token", testUser.getId()));
+    }
+
+    @Test
+    public void token_auth_nullToken_throwsException() {
+        testUser.setToken("valid-token");
+        Mockito.when(userRepository.findByid(testUser.getId())).thenReturn(testUser);
+
+        assertThrows(ResponseStatusException.class, () -> userService.token_auth(null, testUser.getId()));
+    }
     
 }

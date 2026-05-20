@@ -156,4 +156,51 @@ class SocketsHandlerTest {
         verify(sessionManager).leaveRoom(1L, 10L);
         assert(!sessionAttributes.containsKey("roomId"));
     }
+
+    @Test
+    void handleTextMessage_textMsg_appendsToBaseTranscript() throws Exception {
+        sessionAttributes.put("userId", 10L);
+        sessionAttributes.put("roomId", 1L);
+
+        TextMessage message = new TextMessage("{\"type\": \"text-msg\", \"content\": {\"message\": \"Hello World\", \"timestamp\": \"10:00\"}}");
+
+        Room mockRoom = mock(Room.class);
+        when(mockRoom.getBaseTranscript()).thenReturn("");
+        when(roomService.getRoomById("1")).thenReturn(mockRoom);
+
+        User mockUser = new User();
+        mockUser.setUsername("test");
+        when(userRepository.findById(10L)).thenReturn(java.util.Optional.of(mockUser));
+
+        Session mockWsSession = mock(Session.class);
+        when(mockWsSession.containsUser(10L)).thenReturn(true);
+        when(sessionManager.findByRoomId(1L)).thenReturn(java.util.Optional.of(mockWsSession));
+        when(mockWsSession.getPeerSocket(10L)).thenReturn(java.util.Optional.empty());
+
+        socketsHandler.handleTextMessage(mockSession, message);
+
+        verify(mockRoom, times(1)).setBaseTranscript("10:00, test : Hello World\n\n");
+    }
+
+    @Test
+    void handleTextMessage_withPeer_relaysMessageToPeerSession() throws Exception {//tests if messages are forwarded correctly to peer
+        sessionAttributes.put("userId", 10L);
+        sessionAttributes.put("roomId", 1L);
+        TextMessage message = new TextMessage("{\"type\": \"random-message\", \"someData\": 123}");
+
+        Room mockRoom = mock(Room.class);
+        when(roomService.getRoomById("1")).thenReturn(mockRoom);
+
+        WebSocketSession peerSession = mock(WebSocketSession.class);
+        when(peerSession.isOpen()).thenReturn(true);
+
+        Session mockWsSession = mock(Session.class);
+        when(mockWsSession.containsUser(10L)).thenReturn(true);
+        when(sessionManager.findByRoomId(1L)).thenReturn(java.util.Optional.of(mockWsSession));
+        when(mockWsSession.getPeerSocket(10L)).thenReturn(java.util.Optional.of(peerSession));
+
+        socketsHandler.handleTextMessage(mockSession, message);
+
+        verify(peerSession, times(1)).sendMessage(any(TextMessage.class));
+    }
 }
