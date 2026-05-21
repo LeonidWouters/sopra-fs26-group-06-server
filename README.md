@@ -7,10 +7,6 @@
 CommunicALL is our attempt at an accessibility focused video call client.
 It allows for p2p video calling and supports a range of accessibility features, currently focused on deaf or hard of hearing users. These include text-to-speech, speech-to-text for hearing/deaf sessions, a chat with automatic time stamped messages, as well as automated transcripts for later use after a call has ended. As a further collaborative feature, a collaborative MD editor is present.
 
-# UI and Functionalities
-
----to be added after UI redesign---
-
 # Technologies
 
 - [React](https://react.dev/) - Frontend Framework
